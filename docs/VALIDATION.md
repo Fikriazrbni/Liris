@@ -97,3 +97,10 @@ Uji UI aplikasi normal: saat dibuka terlihat Pengenalan audio mati. Klik Hubungk
 Runtime Python redistributable dan site-packages ShazamIO dibundel di Contents/Resources/Python, termasuk file lisensi dependensi. Tidak ada path interpreter absolut ke checkout. Library dan executable Mach-O embedded ditandatangani sebelum app. Worker memakai Python isolated mode dan bytecode writing dimatikan agar import tidak menulis ke bundle yang sudah ditandatangani. Setup native host Brave tersedia lewat tombol di aplikasi, menggunakan lokasi bundle terpasang.
 
 45 tes Swift lulus. Bundle dipindahkan ke /private/tmp/liris-release-check; Python terisolasi dan import shazamio, shazamio_core, aiohttp, pydantic_core, worker --check, resource/kompilasi skrip dan codesign deep/strict lulus. Tidak ada capture audio atau request pengenalan dalam pengujian release. Tidak ada identitas Developer ID terpasang (security find-identity: 0 valid identities); distribusi ini ad hoc signed, belum notarized. Release ditandai pre-release, arm64 saja, akses repo private.
+
+
+## Tap Homebrew public
+
+Repo Liris dan Fikriazrbni/homebrew-tap menjadi public atas instruksi pengguna. Cask versi 0.4.3 menunjuk ZIP release arm64 dengan SHA-256 8c4befef3d0a2c5474755a0507253a5088263b0eb9187d250d502e59175c6cc6. Uji brew install --cask --appdir=/private/tmp/liris-brew-install fikriazrbni/tap/liris berhasil mengunduh, memverifikasi dan memasang app tanpa build; instalasi uji dibersihkan setelah verifikasi. Cask menyatakan batas pre-release ad hoc, belum notarized, dan pengenalan audio manual.
+
+Kedua repo memiliki CODEOWNERS untuk Fikriazrbni. Branch protection main memerlukan satu review dan review CODEOWNER, dismiss stale approvals, serta resolusi percakapan; force-push dan penghapusan branch dilarang. Admin tidak dipaksa mengikuti requirement review agar pemilik tunggal tidak terkunci dari pemeliharaan proyek. API collaborator memperlihatkan hanya Fikriazrbni dengan write/admin pada kedua repo. Akses public tidak memberi write.
