@@ -1,0 +1,14 @@
+.build/
+.swiftpm/
+dist/
+.DS_Store
+*.log
+
+.runtime/
+__pycache__/
+
+.env
+.env.*
+!.env.example
+*.pem
+*.p12

@@ -1,0 +1,26 @@
+{
+  "manifest_version": 3,
+  "name": "Liris Auto Bridge",
+  "version": "0.3.0",
+  "description": "Send playback metadata from YouTube and YouTube Music to the local Liris app.",
+  "permissions": [
+    "nativeMessaging"
+  ],
+  "background": {
+    "service_worker": "background.js"
+  },
+  "content_scripts": [
+    {
+      "matches": [
+        "https://music.youtube.com/*",
+        "https://www.youtube.com/*",
+        "https://youtube.com/*"
+      ],
+      "js": [
+        "content.js"
+      ],
+      "run_at": "document_idle"
+    }
+  ],
+  "key": "MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAhRAqFC6jQcM1JoXazV+0htsb/xEVp9xRx6TAVNd3DSeffyi+B0p654as4ZSASizIX8SFSEwNcBix8O2pNF3oD43Ajv6ow4vepnPZwCJR52QMaoRLci3QudlWDdvtPx1YpRX+hp3K3FCvtzBBLd5Q7r4o93wVJ8GZc1Ngo0NSnXhLMnhuJUWYo52vEugUhASmPsj50mMTkJ7rGQbRs1TPo69KEluHK0p2+2H16K1I63cLkWiIhZITXLTt8BR4acKZ/vTx5BbeCK6gJ0l7BdDge1HVD1McBy8hmkDCcbKkS9Z3tKLg+KnadGlFcbMdWHGuyLgBdSlnkxbcFJ0WayR5mwIDAQAB"
+}
