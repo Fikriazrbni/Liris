@@ -110,6 +110,33 @@ class UiTests(unittest.TestCase):
         self.assertEqual(self.window.store.track(key)['choice'], 1)
         self.assertIn('durasi berbeda', self.window.sync_status.text())
 
+    def test_overlay_three_lines_follow_active_index_and_boundaries(self):
+        from liris.presentation import present
+        self.window.set_lyrics({'syncedLyrics': '[00:01]First\n[00:02]Middle\n[00:03]Last'})
+        for position, expected in [(0, ('', '♪', '')), (1, ('', 'First', 'Middle')),
+                                   (2, ('First', 'Middle', 'Last')), (3, ('Middle', 'Last', '')),
+                                   (1, ('', 'First', 'Middle'))]:
+            self.window.clock.update(packet(position=position, playing=False))
+            self.window.tick()
+            present(self.window)
+            overlay = self.window.overlay
+            self.assertEqual((overlay.previous_line.text(), overlay.text.text(), overlay.next_line.text()), expected)
+
+    def test_settings_only_on_appearance_and_connect_button_can_disconnect(self):
+        from liris.presentation import show_page, present
+        self.window.show()
+        self.app.processEvents()
+        self.assertFalse(self.window.settings_scroll.isVisible())
+        show_page(self.window, 2)
+        self.assertTrue(self.window.settings_scroll.isVisible())
+        self.window.connect_button.click()
+        present(self.window)
+        self.assertTrue(self.window.connected)
+        self.assertEqual(self.window.connect_button.text(), 'Putuskan')
+        self.window.connect_button.click()
+        self.assertFalse(self.window.connected)
+        self.assertFalse(self.window.audio.enabled)
+
     def test_overlay_native_styles_and_tray_emergency_stop(self):
         overlay = self.window.overlay
         overlay.show()

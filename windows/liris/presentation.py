@@ -3,7 +3,7 @@ from PySide6.QtCore import Qt, QTimer, QSize, QPointF, QPropertyAnimation, QEasi
 from PySide6.QtGui import QColor, QFont, QPainter, QPixmap
 from PySide6.QtWidgets import (QWidget, QLabel, QVBoxLayout, QHBoxLayout, QPushButton,
     QScrollArea, QStackedWidget, QComboBox, QSlider, QDoubleSpinBox, QCheckBox,
-    QListWidget, QLineEdit, QSizePolicy, QStyledItemDelegate, QStyle, QAbstractItemView)
+    QListWidget, QLineEdit, QSizePolicy, QStyledItemDelegate, QStyle, QAbstractItemView, QMenu)
 from liris.theme import STYLE, TOKENS, high_contrast
 
 
@@ -99,14 +99,14 @@ class ThinSlider(QSlider):
 
 def build_main(w):
     w.setStyleSheet('' if high_contrast() else STYLE)
-    w.setMinimumSize(940, 640)
+    w.setMinimumSize(840, 600)
     root = QWidget()
     w.setCentralWidget(root)
     outer = QHBoxLayout(root)
     outer.setContentsMargins(0, 0, 0, 0)
     outer.setSpacing(0)
     sidebar, nav = box('sidebar', 20, 12)
-    sidebar.setFixedWidth(205)
+    sidebar.setFixedWidth(172)
     brand_row = QHBoxLayout()
     from liris.branding import brand_icon
     icon = QLabel()
@@ -117,9 +117,7 @@ def build_main(w):
     brand.setStyleSheet('font-size: 32px; font-weight: 600;')
     brand_row.addWidget(brand, 1)
     nav.addLayout(brand_row)
-    nav.addWidget(label('A LITTLE CLOSER TO THE MUSIC', 'eyebrow'))
-    nav.addSpacing(32)
-    nav.addWidget(label('RUANG DENGAR', 'eyebrow'))
+    nav.addSpacing(20)
     w.nav_buttons = []
     for title in ('♪   Sedang diputar', '⌕   Cari lirik', '☷   Tampilan'):
         b = w.button(title, lambda checked=False, i=len(w.nav_buttons): show_page(w, i))
@@ -128,10 +126,8 @@ def build_main(w):
         nav.addWidget(b)
         w.nav_buttons.append(b)
     nav.addStretch()
-    nav.addWidget(label('“\nAda cerita\ndi setiap nada.', 'heading'))
-    nav.addWidget(label('Beri ruang untuk mendengarnya.', 'muted'))
-    nav.addSpacing(24)
-    guide = w.button('ⓘ   Panduan koneksi', lambda: show_page(w, 3))
+
+    guide = w.button('ⓘ   Bantuan', lambda: show_page(w, 3))
     guide.setObjectName('nav')
     guide.setCheckable(True)
     w.nav_buttons.append(guide)
@@ -142,8 +138,7 @@ def build_main(w):
     outer.addWidget(content, 1)
     header = QHBoxLayout()
     title_col = QVBoxLayout()
-    title_col.addWidget(label('YOUR EVERYDAY SOUNDTRACK', 'eyebrow'))
-    w.page_heading = label('Musikmu, kata demi kata.', 'heading')
+    w.page_heading = label('Sedang diputar', 'heading')
     title_col.addWidget(w.page_heading)
     header.addLayout(title_col, 1)
     w.demo_badge = QLabel('DEMO VISUAL · TANPA AUDIO')
@@ -177,32 +172,29 @@ def build_main(w):
     main, fixed_main = box('', 0, 8)
     w.pages.addWidget(main)
     stage, main_layout = box('', 0, 12)
-    stage.setMinimumHeight(470)
+    stage.setMinimumHeight(280)
     w.stage_scroll = scroll(stage)
     fixed_main.addWidget(w.stage_scroll, 1)
     connection = QHBoxLayout()
-    connection.addWidget(QLabel('✧  Auto'))
-    connection.addWidget(w.button('Siapkan Auto', w.setup_extension))
+    connection.addWidget(QLabel('Auto · Extension / audio sistem'))
     connection.addStretch()
-    w.connect_button = w.button('Hubungkan', w.connect_player)
+    w.connect_button = w.button('Hubungkan', lambda: w.disconnect_player() if w.connected else w.connect_player())
     w.connect_button.setObjectName('primary')
     connection.addWidget(w.connect_button)
-    connection.addWidget(w.button('Putuskan', w.disconnect_player))
-    main_layout.addLayout(connection)
+    fixed_main.insertLayout(0, connection)
     card, card_layout = box('card', 17, 8)
-    card.setFixedHeight(142)
+    card.setFixedHeight(104)
     card_row = QHBoxLayout()
     cover = QLabel()
-    cover.setPixmap(artwork())
-    cover.setFixedSize(106, 106)
+    cover.setPixmap(artwork(64))
+    cover.setFixedSize(64, 64)
     cover.setToolTip('Placeholder sampul; bukan artwork lagu')
     card_row.addWidget(cover)
     metadata = QVBoxLayout()
-    metadata.addWidget(label('DI RUANG DENGARMU', 'eyebrow'))
     w.song = label('Menunggu pemutar', 'song')
-    w.song.setFixedHeight(58)
+    w.song.setFixedHeight(44)
     w.artist_label = label('Hubungkan pemutar untuk mulai.', 'muted')
-    w.artist_label.setFixedHeight(24)
+    w.artist_label.setFixedHeight(20)
     metadata.addWidget(w.song)
     metadata.addWidget(w.artist_label)
     card_row.addLayout(metadata, 1)
@@ -212,9 +204,14 @@ def build_main(w):
     w.sync_status.setMaximumHeight(60)
     main_layout.addWidget(w.sync_status)
     lyric_header = QHBoxLayout()
-    lyric_header.addWidget(label('DI ANTARA NADA', 'eyebrow'), 1)
-    lyric_header.addWidget(w.button('Versi lain', lambda: show_page(w, 1)))
-    lyric_header.addWidget(w.button('Periksa ulang', w.refresh))
+    lyric_header.addStretch()
+    more = w.button('Lainnya ⋯', lambda: None)
+    menu = QMenu(more)
+    for title, callback in [('Cari / pilih versi lirik', lambda: show_page(w, 1)),
+                            ('Periksa ulang', w.refresh), ('Impor LRC', w.import_lrc)]:
+        menu.addAction(title).triggered.connect(callback)
+    more.setMenu(menu)
+    lyric_header.addWidget(more)
     main_layout.addLayout(lyric_header)
     w.lyrics_list = QListWidget()
     w.lyrics_list.setWordWrap(True)
@@ -238,7 +235,6 @@ def build_main(w):
     progress.addWidget(w.duration_label)
     fixed_main.addLayout(progress)
     playback = QHBoxLayout()
-    playback.addWidget(w.button('↥  Impor LRC', w.import_lrc))
     playback.addStretch()
     w.play = w.button('▶', lambda: w.command('toggle'))
     w.play.setAccessibleName('Play / pause')
@@ -246,7 +242,6 @@ def build_main(w):
     w.play.setFixedSize(46, 46)
     playback.addWidget(w.play)
     playback.addStretch()
-    playback.addWidget(label('WAKTU PEMUTAR', 'eyebrow'))
     fixed_main.addLayout(playback)
     # Search/version selection keeps the same callbacks and data objects.
     search_page, search_layout = box('', 0, 16)
@@ -276,7 +271,7 @@ def build_main(w):
     appearance_layout.addWidget(label('Bikin ruang dengarmu sendiri.', 'heading'))
     appearance_layout.addWidget(label('Warna, ukuran dan opasitas langsung diterapkan ke overlay dan disimpan di Windows ini.', 'muted'))
     appearance_layout.addWidget(label('PRATINJAU OVERLAY · TEKS CONTOH', 'eyebrow'))
-    w.appearance_preview = label('Setiap kata menemukan nadanya.\n\nLirik tetap dekat.')
+    w.appearance_preview = label('Biarkan dunia berputar sejenak.\n\nKita dengarkan cerita yang sama.\n\nSetiap kata menemukan nadanya.')
     w.appearance_preview.setAlignment(Qt.AlignmentFlag.AlignCenter)
     w.appearance_preview.setMinimumHeight(220)
     appearance_layout.addWidget(w.appearance_preview)
@@ -356,7 +351,6 @@ def build_main(w):
     footer = QHBoxLayout()
     footer.addWidget(w.connection_status)
     footer.addWidget(w.source, 1)
-    footer.addWidget(QLabel('LRCLIB'))
     content_layout.addLayout(footer)
     w.presentation_timer = QTimer(w)
     w.presentation_timer.timeout.connect(lambda: present(w))
@@ -367,10 +361,10 @@ def build_main(w):
 
 def show_page(w, index):
     w.pages.setCurrentIndex(index)
-    w.page_heading.setText(['Musikmu, kata demi kata.', 'Cari lirik', 'Tampilan', 'Panduan koneksi'][index])
+    w.page_heading.setText(['Sedang diputar', 'Cari lirik', 'Tampilan', 'Panduan koneksi'][index])
     for i, b in enumerate(w.nav_buttons):
         b.setChecked(i == index)
-    w.settings_scroll.setVisible(index != 3)
+    w.settings_scroll.setVisible(index == 2)
     if index == 1:
         w.query.setFocus()
 
@@ -389,7 +383,8 @@ def present(w):
                                else 'Aktifkan manual setelah terhubung. Connect/reconnect tidak menyalakan audio.')
     track = w.track or {}
     w.play.setText('Ⅱ' if w.packet and w.packet.get('playing') else '▶')
-    w.song.setText(track.get('title') or 'Musik menyala.\nLirik ikut bercerita.')
+    w.song.setText(track.get('title') or 'Belum ada lagu')
+    w.connect_button.setText('Putuskan' if w.connected else 'Hubungkan')
     w.artist_label.setText(' · '.join(filter(None, [track.get('artist'), track.get('album')])) or 'Hubungkan pemutar untuk mulai mendengarkan.')
     duration = track.get('duration', 0)
     w.duration_label.setText(f'{int(duration)//60}:{int(duration)%60:02d}')
@@ -401,7 +396,9 @@ def present(w):
         w.appearance_preview.setStyleSheet(f'background: #1A1D1D; border-radius: 16px; padding: 24px; color: {w.store.settings.get("color", TOKENS["lime"])}; font-size: {w.store.settings.get("font_size", 30)}px; font-weight: 600;')
     w.overlay.title.setText('LIRIS  /  ' + (track.get('title') or 'Menunggu pemutar'))
     i = w.current_line
-    w.overlay.next_line.setText(w.lines[i+1].text if 0 <= i+1 < len(w.lines) else '')
+    w.overlay.previous_line.setText(w.lines[i-1].text if 0 < i < len(w.lines) else '')
+    w.overlay.next_line.setText(w.lines[i+1].text if 0 <= i < len(w.lines)-1 else '')
+    w.overlay.fit_lyrics()
 
 
 def scroll_active(w, index):

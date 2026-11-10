@@ -7,7 +7,7 @@ import sys
 import time
 from pathlib import Path
 
-from PySide6.QtCore import QObject, Qt, QTimer, Signal, QUrl
+from PySide6.QtCore import QObject, Qt, QTimer, Signal, QUrl, QRect
 from PySide6.QtGui import QAction, QColor, QDesktopServices, QFont, QIcon, QPainter, QPixmap
 from PySide6.QtWidgets import (QApplication, QCheckBox, QComboBox, QDoubleSpinBox, QFileDialog,
                                QHBoxLayout, QLabel, QLineEdit, QListWidget, QMainWindow, QMenu,
@@ -36,12 +36,16 @@ class Overlay(QWidget):
         self.setWindowTitle('Liris • Overlay')
         self.setWindowIcon(brand_icon())
         self.setWindowFlag(Qt.WindowType.WindowStaysOnTopHint)
-        self.resize(800, 180)
+        self.resize(800, 230)
+        self.setMinimumSize(460, 210)
         layout = QVBoxLayout(self)
         self.indicator = QLabel('Audio Mati')
         self.text = QLabel('Liris\nMenunggu lirik')
         self.text.setAlignment(Qt.AlignmentFlag.AlignCenter)
         self.text.setWordWrap(True)
+        self.previous_line = QLabel('')
+        self.previous_line.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        self.previous_line.setWordWrap(True)
         self.stop = QPushButton('Matikan audio')
         self.stop.clicked.connect(owner.stop_audio)
         self.title = QLabel('LIRIS / Menunggu pemutar')
@@ -54,8 +58,9 @@ class Overlay(QWidget):
         header.addWidget(self.indicator)
         header.addWidget(self.stop)
         layout.addLayout(header)
+        layout.addWidget(self.previous_line, 1)
         layout.addWidget(self.text, 1)
-        layout.addWidget(self.next_line)
+        layout.addWidget(self.next_line, 1)
         layout.setContentsMargins(20, 12, 20, 16)
         self.locked = False
         self.apply_style()
@@ -68,6 +73,7 @@ class Overlay(QWidget):
         self.setStyleSheet('' if high_contrast() else STYLE)
         self.setObjectName('card')
         self.next_line.setStyleSheet('color: #8C9691; font-size: 18px;')
+        self.previous_line.setStyleSheet('color: #8C9691; font-size: 18px;')
         self.title.setStyleSheet('color: #8C9691; font-size: 11px;')
         self.text.setStyleSheet(f'color: {color}; font-size: {size}px; font-weight: 600;')
         self.setWindowOpacity(settings.get('opacity', 0.9))
@@ -80,6 +86,24 @@ class Overlay(QWidget):
         if visible:
             self.show()
         self.owner.lock_overlay.setChecked(value)
+
+    def fit_lyrics(self):
+        # Wrapped verses and larger user fonts must not overlap adjacent rows.
+        margin = self.layout().contentsMargins()
+        width = max(100, self.width() - margin.left() - margin.right())
+        total = self.layout().itemAt(0).layout().sizeHint().height()
+        for row in (self.previous_line, self.text, self.next_line):
+            row.ensurePolished()
+            metrics = row.fontMetrics()
+            height = max(metrics.height(), metrics.boundingRect(
+                QRect(0, 0, width, 10000), Qt.TextFlag.TextWordWrap, row.text() or ' ').height())
+            row.setMinimumHeight(height)
+            total += height
+        self.setMinimumHeight(max(210, total + margin.top() + margin.bottom() + 3 * self.layout().spacing()))
+
+    def resizeEvent(self, event):
+        super().resizeEvent(event)
+        self.fit_lyrics()
 
     def closeEvent(self, event):
         self.hide()
@@ -120,7 +144,7 @@ class MainWindow(QMainWindow):
         self.poll.start(100)
         self.setWindowTitle('Liris for Windows • Preview')
         self.setWindowIcon(brand_icon())
-        self.resize(1220, 790)
+        self.resize(1100, 740)
 
     def button(self, text, callback):
         button = QPushButton(text)

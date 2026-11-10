@@ -1,10 +1,15 @@
 """Collect license notices and produce a portable ZIP, never a GitHub release."""
 import importlib.metadata
+import argparse
 import shutil
 from pathlib import Path
 
 root = Path(__file__).resolve().parent
-bundle = root / 'dist' / 'Liris-Windows'
+parser = argparse.ArgumentParser()
+parser.add_argument('--bundle', type=Path, default=root / 'dist' / 'Liris-Windows')
+parser.add_argument('--archive-name', default='Liris-Windows-x64-preview')
+args = parser.parse_args()
+bundle = args.bundle.resolve()
 notices = bundle / 'THIRD-PARTY-LICENSES'
 notices.mkdir(parents=True, exist_ok=True)
 shutil.copytree(root / 'licenses', notices / 'Qt-license-terms', dirs_exist_ok=True)
@@ -26,5 +31,5 @@ shutil.copy2(root / 'README.md', bundle / 'README.md')
 for name in ('VALIDATION.md', 'ARCHITECTURE.md', 'UI-VALIDATION.md', 'unregister-bridge.ps1'):
     shutil.copy2(root / name, bundle / name)
 shutil.copy2(root / 'requirements.lock', bundle / 'requirements.lock')
-shutil.make_archive(str(root / 'dist' / 'Liris-Windows-x64-preview'), 'zip', root_dir=bundle.parent, base_dir=bundle.name)
-print('Created windows/dist/Liris-Windows-x64-preview.zip')
+archive = shutil.make_archive(str(root / 'dist' / args.archive_name), 'zip', root_dir=bundle.parent, base_dir=bundle.name)
+print('Created ' + archive)

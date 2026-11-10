@@ -67,6 +67,9 @@ def main():
                 if width < 1100 and page == 0 and w.lines:
                     w.stage_scroll.ensureWidgetVisible(w.lyrics_list)
                 app.processEvents()
+                w.setWindowState(Qt.WindowState.WindowNoState)
+                w.resize(width, height)
+                app.processEvents()
                 assert w.width() == width and w.height() == height, (w.size(), width, height)
                 for control in [w.page_heading, w.audio_banner, w.audio_stop if state in audio_text else w.audio_enable] + ([w.play, w.timeline] if page == 0 else []):
                     top = control.mapTo(w, QPoint(0, 0))
@@ -76,10 +79,11 @@ def main():
             w.audio.enabled = True
             w.audio_status(w.audio.epoch, 'Aktif • simulasi visual')
             present(w)
+            w.overlay.previous_line.setText('Biarkan dunia berputar sejenak')
             w.overlay.text.setText('Kita dengarkan cerita yang sama')
             w.overlay.next_line.setText('Setiap kata menemukan nadanya')
             w.overlay.title.setText('LIRIS / Ruang Senja · DEMO TANPA AUDIO')
-            w.overlay.resize(800, 180)
+            w.overlay.resize(800, 230)
             w.overlay.show()
             app.processEvents()
             w.overlay.grab().save(str(folder / 'overlay.png'))

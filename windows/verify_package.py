@@ -1,5 +1,6 @@
 """Real packaged-process verification. No audio device or Shazam recognition."""
 import json
+import argparse
 import os
 import queue
 import struct
@@ -15,7 +16,9 @@ from liris.storage import atomic_json, read_json
 
 def main():
     root = Path(__file__).resolve().parent
-    bundle = root / 'dist' / 'Liris-Windows'
+    parser = argparse.ArgumentParser()
+    parser.add_argument('--bundle', type=Path, default=root / 'dist' / 'Liris-Windows')
+    bundle = parser.parse_args().bundle.resolve()
     evidence = root / '.test-data'
     evidence.mkdir(exist_ok=True)
     with tempfile.TemporaryDirectory(prefix='portable-', dir=evidence) as tmp:

@@ -1,5 +1,28 @@
 # Windows UI revision
 
+## Current simplified revision — 11 November 2026
+
+The listening page now uses a 172 DIP sidebar and no permanent settings column.
+Colors, font size, opacity, offset and click-through settings appear only on
+**Tampilan**. Decorative slogans and repeated overlay/import/version controls were
+removed from the listening page. **Lainnya** contains lyric version selection,
+refresh and import; the existing connection/disconnection callbacks share one
+Hubungkan/Putuskan button. Connection remains fixed above the scrolling lyric stage.
+Default window size is 1100×740; the minimum is 840×600.
+
+Overlay now displays **previous / active / next** timed lyric rows. The active row
+retains the larger accent font, adjacent rows use muted 18 px text, and missing
+neighbors at song boundaries stay blank. Header, audio status and unlocked Stop
+remain available. Default overlay is 800×230, with minimum height adapting to wrapped
+lyrics and font size. Click-through and topmost behavior are unchanged.
+
+37 Windows tests passed, including three-row progression/backward seek/boundaries
+and settings visibility/connection behavior. Offline render fixtures cover the same
+1220×790 and 940×640 matrix at effective DPR 1/1.25/1.5/2. No real audio capture,
+recognition request, clock, backend or extension change is part of this revision.
+PNG evidence remains under `.test-data/visual/<factor>/`, including `overlay.png`
+and `overlay-locked.png`. The earlier layout description below is historical.
+
 Reference: all seven supplied Mac v0.4.3 PNGs were extracted from the user's ZIP
 and visually inspected. Mac main viewport is treated as 1220×790 logical points,
 not 2440 DIP. No Mac source, build, release or shared backend/extension was changed.
