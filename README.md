@@ -6,11 +6,19 @@ Terinspirasi alur penggunaan [FrontLine Lyrics Desktop](https://github.com/julio
 
 ## Download aplikasi siap pakai
 
-Unduh [Liris v0.4.3 untuk Apple Silicon](https://github.com/Fikriazrbni/Liris/releases/tag/v0.4.3), ekstrak ZIP, lalu pindahkan **Liris.app** ke **Applications** dan buka. Tidak perlu Swift, Python, uv, atau build manual. Runtime Python dan ShazamIO sudah dibundel. Repo/release private memerlukan login GitHub dengan akses ke repo.
+Unduh [Liris v0.4.3 untuk Apple Silicon](https://github.com/Fikriazrbni/Liris/releases/tag/v0.4.3), ekstrak ZIP, lalu pindahkan **Liris.app** ke **Applications** dan buka. Tidak perlu Swift, Python, uv, atau build manual. Runtime Python dan ShazamIO sudah dibundel. Repo dan release tersedia public.
 
 Build awal ini ditandatangani ad hoc, belum Developer ID/notarized; macOS dapat menolak pembukaan unduhan. Ini pre-release untuk pengujian, bukan paket dengan verifikasi distribusi Apple. Minimum macOS 14, Apple Silicon (M1 atau lebih baru); Intel belum tersedia.
 
 Untuk YouTube/YouTube Music: Panduan koneksi → **Buka extension dan Brave** mendaftarkan native host dari lokasi app yang terpasang dan membuka folder extension. Load unpacked di Brave masih perlu dilakukan sekali oleh pengguna. Untuk Discord: Auto → Hubungkan → **Aktifkan audio** secara manual. Izin capture macOS dan internet tetap diperlukan. Memindahkan app setelah setup extension memerlukan klik setup lagi agar path native host diperbarui.
+
+## Install melalui Homebrew
+
+```sh
+brew install --cask fikriazrbni/tap/liris
+```
+
+Tap: [Fikriazrbni/homebrew-tap](https://github.com/Fikriazrbni/homebrew-tap). Khusus Apple Silicon, macOS 14+. Homebrew mengunduh app yang sudah dibangun dan memverifikasi checksum; build ini masih pre-release dan belum notarized Apple. Setup extension Brave dan izin audio tetap diperlukan sesuai fitur yang dipakai.
 
 ## Jalankan di MacBook
 
