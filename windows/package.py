@@ -23,7 +23,7 @@ for dist in importlib.metadata.distributions():
 (notices / 'INVENTORY.txt').write_text('\n'.join(sorted(inventory)), encoding='utf-8')
 shutil.copy2(Path(__import__('sys').base_prefix) / 'LICENSE.txt', notices / 'Python-LICENSE.txt')
 shutil.copy2(root / 'README.md', bundle / 'README.md')
-for name in ('VALIDATION.md', 'ARCHITECTURE.md', 'unregister-bridge.ps1'):
+for name in ('VALIDATION.md', 'ARCHITECTURE.md', 'UI-VALIDATION.md', 'unregister-bridge.ps1'):
     shutil.copy2(root / name, bundle / name)
 shutil.copy2(root / 'requirements.lock', bundle / 'requirements.lock')
 shutil.make_archive(str(root / 'dist' / 'Liris-Windows-x64-preview'), 'zip', root_dir=bundle.parent, base_dir=bundle.name)
