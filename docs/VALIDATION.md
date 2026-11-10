@@ -90,3 +90,10 @@ Preferensi autoAudioEnabled dimigrasikan/dihapus dan tidak dibaca oleh Connect. 
 Build release 0.4.2 berhasil setelah dsymutil dijalankan di luar pembatasan sandbox; tanda tangan deep/strict dan lint plist lulus. Pratinjau native aktif, suppression, mati, dan overlay diperiksa menggunakan data demo tanpa audio; panel pengaturan di sisi kanan dapat discroll agar banner dan kontrol tetap muat.
 
 Uji UI aplikasi normal: saat dibuka terlihat Pengenalan audio mati. Klik Hubungkan → Putuskan → Hubungkan tetap membiarkan audio mati dan menampilkan tombol Aktifkan audio. Capture tidak diaktifkan kembali untuk uji ini. App ditinggalkan pada sumber Auto yang terhubung dengan audio mati, agar pengguna dapat mengaktifkannya sendiri. ZIP dist/Liris-macOS-arm64.zip diperbarui ke 0.4.2.
+
+
+## Paket mandiri 0.4.3
+
+Runtime Python redistributable dan site-packages ShazamIO dibundel di Contents/Resources/Python, termasuk file lisensi dependensi. Tidak ada path interpreter absolut ke checkout. Library dan executable Mach-O embedded ditandatangani sebelum app. Worker memakai Python isolated mode dan bytecode writing dimatikan agar import tidak menulis ke bundle yang sudah ditandatangani. Setup native host Brave tersedia lewat tombol di aplikasi, menggunakan lokasi bundle terpasang.
+
+45 tes Swift lulus. Bundle dipindahkan ke /private/tmp/liris-release-check; Python terisolasi dan import shazamio, shazamio_core, aiohttp, pydantic_core, worker --check, resource/kompilasi skrip dan codesign deep/strict lulus. Tidak ada capture audio atau request pengenalan dalam pengujian release. Tidak ada identitas Developer ID terpasang (security find-identity: 0 valid identities); distribusi ini ad hoc signed, belum notarized. Release ditandai pre-release, arm64 saja, akses repo private.

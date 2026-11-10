@@ -4,6 +4,14 @@ Aplikasi desktop native untuk menampilkan lirik tersinkron dari musik yang diput
 
 Terinspirasi alur penggunaan [FrontLine Lyrics Desktop](https://github.com/juliocax/FrontLine-Lyrics-Desktop). Implementasi Swift ini ditulis baru; tidak menyalin kode, aset, atau backend proyek referensi.
 
+## Download aplikasi siap pakai
+
+Unduh [Liris v0.4.3 untuk Apple Silicon](https://github.com/Fikriazrbni/Liris/releases/tag/v0.4.3), ekstrak ZIP, lalu pindahkan **Liris.app** ke **Applications** dan buka. Tidak perlu Swift, Python, uv, atau build manual. Runtime Python dan ShazamIO sudah dibundel. Repo/release private memerlukan login GitHub dengan akses ke repo.
+
+Build awal ini ditandatangani ad hoc, belum Developer ID/notarized; macOS dapat menolak pembukaan unduhan. Ini pre-release untuk pengujian, bukan paket dengan verifikasi distribusi Apple. Minimum macOS 14, Apple Silicon (M1 atau lebih baru); Intel belum tersedia.
+
+Untuk YouTube/YouTube Music: Panduan koneksi → **Buka extension dan Brave** mendaftarkan native host dari lokasi app yang terpasang dan membuka folder extension. Load unpacked di Brave masih perlu dilakukan sekali oleh pengguna. Untuk Discord: Auto → Hubungkan → **Aktifkan audio** secara manual. Izin capture macOS dan internet tetap diperlukan. Memindahkan app setelah setup extension memerlukan klik setup lagi agar path native host diperbarui.
+
 ## Jalankan di MacBook
 
 Persyaratan: **macOS 14 Sonoma atau lebih baru**, Command Line Tools untuk membangun. Build menghasilkan aplikasi untuk arsitektur Mac yang dipakai (Apple Silicon pada mesin ini).

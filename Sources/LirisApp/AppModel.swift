@@ -372,6 +372,16 @@ final class AppModel: ObservableObject {
         receive(TrackSnapshot(available: true, id: "diagnostic", title: title, artist: artist, position: 30, duration: 0, playing: true, positionSource: "recognition"))
     }
     func openAutoExtension() {
+        // Register this installed bundle, so downloads require no Python/terminal setup.
+        guard let helper = Bundle.main.executableURL?.deletingLastPathComponent().appendingPathComponent("LirisBridge"),
+              FileManager.default.isExecutableFile(atPath: helper.path) else { return }
+        do {
+            let folder = FileManager.default.homeDirectoryForCurrentUser.appendingPathComponent("Library/Application Support/BraveSoftware/Brave-Browser/NativeMessagingHosts")
+            try FileManager.default.createDirectory(at: folder, withIntermediateDirectories: true)
+            let config: [String: Any] = ["name": "id.local.liris.bridge", "description": "Liris local playback bridge", "path": helper.path,
+                "type": "stdio", "allowed_origins": ["chrome-extension://lbogacejhoidbiplndajhinepmobfphh/"]]
+            try JSONSerialization.data(withJSONObject: config, options: [.prettyPrinted]).write(to: folder.appendingPathComponent("id.local.liris.bridge.json"), options: .atomic)
+        } catch { connectionError = "Setup Brave gagal: " + error.localizedDescription; return }
         if let folder = Bundle.main.resourceURL?.appendingPathComponent("AutoExtension") { NSWorkspace.shared.open(folder) }
         let url = URL(string: "brave://extensions")!
         if let brave = NSWorkspace.shared.urlForApplication(withBundleIdentifier: "com.brave.Browser") {

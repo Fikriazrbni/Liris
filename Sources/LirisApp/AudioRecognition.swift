@@ -60,11 +60,9 @@ final class AudioRecognition: NSObject, SCStreamOutput, SCStreamDelegate, AudioC
     private var running = false
     var status: String { lock.lock(); defer { lock.unlock() }; return message }
     private var runtime: URL? {
-        guard let url = Bundle.main.url(forResource: "ShazamIO", withExtension: "plist"),
-              let data = try? Data(contentsOf: url),
-              let config = try? PropertyListSerialization.propertyList(from: data, format: nil) as? [String: String],
-              let path = config["PythonPath"], FileManager.default.isExecutableFile(atPath: path) else { return nil }
-        return URL(fileURLWithPath: path)
+        guard let url = Bundle.main.resourceURL?.appendingPathComponent("Python/bin/python3.12"),
+              FileManager.default.isExecutableFile(atPath: url.path) else { return nil }
+        return url
     }
     private var script: URL? { Bundle.main.resourceURL?.appendingPathComponent("backend/shazamio_worker.py") }
     var configured: Bool { runtime != nil && script.map { FileManager.default.fileExists(atPath: $0.path) } == true }
@@ -183,7 +181,7 @@ final class AudioRecognition: NSObject, SCStreamOutput, SCStreamDelegate, AudioC
             let process = Process(), input = Pipe(), output = Pipe()
             defer { if process.isRunning { process.terminate() }; lock.withLock { pending = false; worker = nil } }
             do {
-                process.executableURL = runtime; process.arguments = [script.path]
+                process.executableURL = runtime; process.arguments = ["-I", "-B", script.path]
                 var environment = ProcessInfo.processInfo.environment
                 environment.removeValue(forKey: "PYTHONPATH"); environment.removeValue(forKey: "PYTHONHOME")
                 environment["PYTHONNOUSERSITE"] = "1"

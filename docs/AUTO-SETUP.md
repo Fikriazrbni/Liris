@@ -1,8 +1,8 @@
-# Mode Auto 0.4.2
+# Mode Auto 0.4.3
 
 ## YouTube dan YouTube Music di Brave
 
-1. Native host dipasang dengan `python3 scripts/install-auto-bridge.py` setelah build. Installer hanya mendaftarkan host Liris, tidak mengubah JavaScript, preferensi, atau extension browser lain.
+1. Pada app unduhan, tombol **Buka extension dan Brave** mendaftarkan native host dari lokasi bundle terpasang. Tidak perlu skrip Python. Skrip `python3 scripts/install-auto-bridge.py` tetap tersedia untuk pengembang. Setup hanya mendaftarkan host Liris, tidak mengubah JavaScript, preferensi, atau extension browser lain.
 2. Buka Liris → Panduan koneksi → Buka extension dan Brave.
 3. Di `brave://extensions`, aktifkan Developer mode → Load unpacked → pilih folder AutoExtension yang dibuka. Ini izin instalasi extension, bukan Allow JavaScript from Apple Events.
 4. Reload tab YouTube / YouTube Music, pilih sumber **Auto**, lalu Hubungkan.
@@ -19,7 +19,7 @@ Cuplikan 12 detik mono PCM16 44100 Hz disimpan hanya di RAM dan dikirim lewat st
 
 Posisi lagu dihitung dari offset hasil pengenalan + selisih jam monotonic sejak awal cuplikan, bukan sejak jawaban jaringan diterima. Silence gate, expiry hasil, satu worker aktif, timeout, cooldown, dan token pembatalan mencegah retry bertumpuk atau hasil lama menggantikan sesi baru. Musik dipause/seek lewat aplikasi sumber ketika menggunakan pengenalan audio. Versi live, cover, campuran percakapan, pergantian lagu dan perubahan kecepatan tetap bisa menyebabkan no-match atau ketidakpastian.
 
-Runtime berada di `.runtime/shazamio` dan `.runtime/python` di folder proyek, diabaikan Git. App menyimpan path absolut runtime lokal; jangan hapus/pindahkan folder runtime selama app digunakan. Untuk membuat ulang: `./scripts/setup-shazamio.sh` lalu `./scripts/build-app.sh`. Dependensi dipin dalam backend/requirements.lock. Distribusi app mandiri ke Mac lain memerlukan pengemasan runtime tersendiri.
+Mulai 0.4.3, runtime Python dan dependensi ShazamIO berada dalam `Liris.app/Contents/Resources/Python`. App tidak bergantung pada folder proyek atau Python sistem dan dapat dipindahkan sebelum setup extension. Untuk developer, `./scripts/setup-shazamio.sh` menyiapkan runtime build lokal, lalu `./scripts/build-app.sh` menyalin runtime redistributable beserta dependensi dan lisensinya ke app serta menandatangani library native. Versi dependensi dipin di backend/requirements.lock. Bundel ini hanya untuk Apple Silicon.
 
 ShazamIO adalah integrasi API tidak resmi yang dapat berubah. Jalur extension tetap menjadi prioritas untuk posisi pemutaran yang dapat dibaca langsung.
 

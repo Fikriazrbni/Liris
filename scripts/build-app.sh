@@ -32,14 +32,8 @@ if [[ ! -x "$project_dir/.runtime/shazamio/bin/python" ]]; then
 fi
 mkdir -p "$app_dir/Contents/Resources/backend"
 cp "$project_dir/backend/shazamio_worker.py" "$app_dir/Contents/Resources/backend/"
-python3 - "$project_dir" "$app_dir" <<'PYCONFIG'
-import plistlib,sys
-from pathlib import Path
-root,app=map(Path,sys.argv[1:])
-with (app/'Contents/Resources/ShazamIO.plist').open('wb') as file:
-    plistlib.dump({'PythonPath':str(root/'.runtime/shazamio/bin/python')},file)
-PYCONFIG
-"$project_dir/.runtime/shazamio/bin/python" "$project_dir/backend/shazamio_worker.py" --check
+rm -f "$app_dir/Contents/Resources/ShazamIO.plist"
+python3 "$project_dir/scripts/bundle-python.py" "$project_dir" "$app_dir"
 codesign --force --sign - "$app_dir/Contents/MacOS/LirisBridge"
 codesign --force --sign - --options runtime --entitlements "$project_dir/Resources/Liris.entitlements" "$app_dir"
 codesign --verify --deep --strict "$app_dir"
