@@ -1,0 +1,39 @@
+name: Windows preview
+on:
+  workflow_dispatch:
+  push:
+    branches: [codex/windows-app]
+    paths: ['windows/**', 'backend/**', 'Extension/**', '.github/workflows/windows.yml']
+  pull_request:
+    paths: ['windows/**', 'backend/**', 'Extension/**', '.github/workflows/windows.yml']
+permissions:
+  contents: read
+jobs:
+  portable:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.13'
+          architecture: x64
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Build and unit tests (no audio capture)
+        shell: pwsh
+        run: ./windows/build.ps1
+      - name: Shared protocol regression
+        shell: pwsh
+        run: |
+          node --test scripts/test-auto-extension.cjs scripts/browser-probe.test.cjs
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          windows/.venv/Scripts/python.exe -m unittest discover -s Tests/Backend -v
+          exit $LASTEXITCODE
+      - name: Verify portable runtime (synthetic data only)
+        working-directory: windows
+        run: .venv/Scripts/python.exe verify_package.py
+      - uses: actions/upload-artifact@v4
+        with:
+          name: Liris-Windows-x64-preview
+          path: windows/dist/Liris-Windows-x64-preview.zip
