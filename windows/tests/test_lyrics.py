@@ -97,6 +97,35 @@ class LyricsTests(unittest.TestCase):
             store.put_track(signature(packet()), {'candidates': [candidate(syncedLyrics={}), candidate(id=2)], 'comparedAt': time.time()})
             self.assertEqual(LyricsClient(store).resolve(packet())[0]['id'], 2)
 
+    def test_exact_timeout_still_uses_search_fallback(self):
+        with tempfile.TemporaryDirectory() as root:
+            client = LyricsClient(Store(root))
+            with patch.object(client, 'request', side_effect=[OSError('TLS handshake timed out'), [candidate()]]) as request:
+                chosen, _, status = client.resolve(packet())
+            self.assertEqual(chosen['id'], 1)
+            self.assertEqual([c.args[0] for c in request.call_args_list], ['/get', '/search'])
+            self.assertIn('pemeriksaan sebagian', status)
+
+    def test_search_timeout_keeps_exact_and_does_not_mark_comparison_complete(self):
+        with tempfile.TemporaryDirectory() as root:
+            store = Store(root)
+            client = LyricsClient(store)
+            with patch.object(client, 'request', side_effect=[candidate(), OSError('timeout')]):
+                chosen, _, status = client.resolve(packet())
+            self.assertEqual(chosen['id'], 1)
+            self.assertEqual(store.track(signature(packet()))['comparedAt'], 0)
+            self.assertIn('pemeriksaan sebagian', status)
+
+    def test_exact_rate_limit_prevents_search_http_request(self):
+        calls = []
+        def limited(request, timeout):
+            calls.append(request.full_url)
+            raise urllib.error.HTTPError(request.full_url, 429, 'Rate limited', {'Retry-After': '120'}, None)
+        with tempfile.TemporaryDirectory() as root:
+            chosen, _, _ = LyricsClient(Store(root), opener=limited).resolve(packet())
+        self.assertIsNone(chosen)
+        self.assertEqual(len(calls), 1)
+
 
 if __name__ == '__main__':
     unittest.main()

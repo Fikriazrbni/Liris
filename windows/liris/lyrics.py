@@ -66,25 +66,40 @@ class LyricsClient:
             candidates = []
         candidates = [c for c in candidates if valid_candidate(c)]
         status = 'Cache; kecocokan vokal belum terbukti'
-        network_error = None
         if force or not candidates or time.time() - local.get('comparedAt', 0) > 7 * 86400:
+            errors = []
+            exact = None
+            found = []
+            search_succeeded = False
+            params = {'track_name': track['title'], 'artist_name': track['artist']}
+            if track.get('duration', 0) > 0:
+                params['duration'] = track['duration']
             try:
-                params = {'track_name': track['title'], 'artist_name': track['artist']}
-                if track.get('duration', 0) > 0:
-                    params['duration'] = track['duration']
                 exact = self.request('/get', params)
+            except (OSError, ValueError) as error:
+                errors.append('exact: ' + str(error))
+            # A failed exact request must not discard the independent search
+            # fallback. request() still enforces Retry-After before any HTTP call.
+            try:
                 found = self.search(track['title'] + ' ' + track['artist'])
-                if valid_candidate(exact):
-                    found.insert(0, exact)
+                search_succeeded = True
+            except (OSError, ValueError) as error:
+                errors.append('search: ' + str(error))
+            if valid_candidate(exact):
+                found.insert(0, exact)
+            if found or search_succeeded:
                 unique = {}
-                for c in found:
+                for c in (candidates if not search_succeeded else []) + found:
                     unique[str(c.get('id', c.get('syncedLyrics', '')))] = c
                 candidates = list(unique.values())[:32]
-                local = self.store.update_track(key, {'candidates': candidates, 'comparedAt': time.time()})
-                status = 'Metadata/durasi diperiksa; kecocokan vokal belum terbukti'
-            except (OSError, ValueError) as error:
-                network_error = str(error)
-                status = 'Offline/error: ' + network_error + '; memakai cache bila cocok'
+                local = self.store.update_track(key, {'candidates': candidates,
+                                                     'comparedAt': time.time() if search_succeeded else 0})
+                status = ('Metadata/durasi diperiksa' if track.get('duration', 0) > 0
+                          else 'Metadata diperiksa; durasi pemutar belum diketahui') + '; kecocokan vokal belum terbukti'
+                if errors:
+                    status += ' — pemeriksaan sebagian: ' + '; '.join(errors)
+            else:
+                status = 'Offline/error: ' + '; '.join(errors) + '; memakai cache bila cocok'
         safe = [c for c in candidates if not assess(c, track)]
         safe.sort(key=lambda c: (normalized(c.get('albumName') or '') != normalized(track.get('album', '')),
                                  abs(c.get('duration', 0) - track.get('duration', 0))))

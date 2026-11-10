@@ -275,6 +275,9 @@ class MainWindow(QMainWindow):
         self.versions.clear()
         self.set_lyrics(None)
         self.song.setText('Menunggu pemutar')
+        self.source.setText('YouTube / YouTube Music melalui extension. Audio sistem bersifat opsional.')
+        self.sync_status.setText('Belum ada lirik')
+        self.position.setText('0:00')
 
     def setup_extension(self):
         try:

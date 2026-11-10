@@ -60,4 +60,6 @@ No Apple Events/Spotify/Apple Music adapter: browser extension plus audio fallba
 No native Windows media-session adapter yet. Audio source does not provide exact
 transport state or duration. Unknown duration permits a metadata-only provisional
 lyric result, clearly marked unverified and never saved as a safe preferred version.
-No claim of vocal alignment, clean-machine compatibility or real capture validation.
+No claim of vocal alignment or clean-machine compatibility. Default FxSound output
+loopback and recognition were subsequently validated with Discord on this machine;
+see VALIDATION.md for the scope and measured results.

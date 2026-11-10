@@ -57,11 +57,12 @@ dan dikunci klik menembus. **Buka kunci overlay** selalu tersedia lewat tray.
   perubahan lagu, campuran suara dan speed berbeda tidak dapat diverifikasi dari
   metadata audio saja. UI selalu menyebut posisi ini **perkiraan**.
 - Kesamaan metadata/timestamp bukan bukti sinkronisasi dengan vokal. Belum ada
-  pengujian browser atau musik nyata pada sesi Windows ini.
+  pengujian sinkronisasi vokal nyata. Capture Discord dan pengenalan dua lagu telah
+  berhasil pada sesi Windows ini; lihat VALIDATION.md untuk batas buktinya.
 
 ## Privasi dan audio
 
-Tidak ada aktivasi audio lewat argumen CLI atau preferensi tersimpan. Hanya tombol
+GUI tidak menerima aktivasi audio lewat argumen CLI atau preferensi tersimpan. Hanya tombol
 manual dan persetujuan dialog yang bisa memulai capture. WASAPI memilih loopback
 untuk output default; perangkat yang bukan loopback ditolak tanpa fallback mic.
 Mengganti perangkat output saat aktif mungkin memerlukan Matikan lalu aktifkan lagi.
@@ -112,3 +113,14 @@ messaging menggunakan fixture sintetis. Tidak merekam atau mengirim audio.
 
 Lihat [VALIDATION.md](VALIDATION.md) untuk status bukti, batasan, dan pengujian nyata
 yang masih perlu dilakukan dengan izin pengguna. Arsitektur: [ARCHITECTURE.md](ARCHITECTURE.md).
+
+Probe developer `live_audio_probe.py` terpisah dari aplikasi dan tidak masuk paket,
+startup, build atau CI. Hanya jalankan sesudah izin eksplisit sesi capture/signature:
+
+```powershell
+.venv\Scripts\python.exe live_audio_probe.py --consent-system-output --recognize --seconds 45 --report .test-data/live.json
+```
+
+Tanpa `--recognize`, probe hanya mengukur output loopback dan menahan worker. Laporan
+berisi metrik dan metadata hasil, tidak menyimpan sampel audio. Probe memakai capture
+engine source dengan `LirisWorker.exe` paket; jangan menyebutnya uji GUI paket.

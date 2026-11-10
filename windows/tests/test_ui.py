@@ -42,6 +42,16 @@ class UiTests(unittest.TestCase):
             start.assert_not_called()
             self.assertIsNone(self.window.audio.thread)
 
+    def test_disconnect_clears_old_source_error_and_position(self):
+        self.window.use_track(packet())
+        self.window.source.setText('ShazamIO • posisi perkiraan')
+        self.window.sync_status.setText('TLS handshake timed out')
+        self.window.position.setText('1:44')
+        self.window.disconnect_player()
+        self.assertNotIn('ShazamIO', self.window.source.text())
+        self.assertEqual(self.window.sync_status.text(), 'Belum ada lirik')
+        self.assertEqual(self.window.position.text(), '0:00')
+
     def test_activation_requires_explicit_yes_and_disconnect_invalidates_late_match(self):
         self.window.connect_player()
         with patch.object(QMessageBox, 'question', return_value=QMessageBox.StandardButton.No), \
