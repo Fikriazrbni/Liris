@@ -9,6 +9,8 @@ if (-not (Test-Path -LiteralPath $python)) {
 if ($LASTEXITCODE -ne 0) { throw 'Instalasi dependensi gagal' }
 & $python -m unittest discover -s tests -v
 if ($LASTEXITCODE -ne 0) { throw 'Tes Windows gagal' }
+& $python generate_icon.py
+if ($LASTEXITCODE -ne 0) { throw 'Pembuatan ikon Windows gagal' }
 & $python -m PyInstaller --noconfirm --clean Liris.spec
 if ($LASTEXITCODE -ne 0) { throw 'Packaging gagal' }
 & $python package.py

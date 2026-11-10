@@ -27,6 +27,7 @@ worker = analyze('worker.py', datas=shazam_data + metadata, binaries=shazam_bins
 
 def executable(a, name, console):
     return EXE(PYZ(a.pure), a.scripts, [], exclude_binaries=True, name=name,
+               icon=str(root / 'assets' / 'liris.ico'),
                console=console, debug=False, strip=False, upx=False)
 
 app = executable(gui, 'Liris', False)

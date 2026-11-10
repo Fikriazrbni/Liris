@@ -15,6 +15,7 @@ from PySide6.QtWidgets import (QApplication, QCheckBox, QComboBox, QDoubleSpinBo
                                QVBoxLayout, QWidget)
 
 from liris.audio import AudioEngine
+from liris.branding import brand_icon
 from liris.bridge import register
 from liris.core import PlaybackClock, active_line, assess, parse_lrc, select_packet, signature
 from liris.lyrics import LyricsClient
@@ -33,6 +34,7 @@ class Overlay(QWidget):
         super().__init__()
         self.owner = owner
         self.setWindowTitle('Liris • Overlay')
+        self.setWindowIcon(brand_icon())
         self.setWindowFlag(Qt.WindowType.WindowStaysOnTopHint)
         self.resize(800, 180)
         layout = QVBoxLayout(self)
@@ -117,6 +119,7 @@ class MainWindow(QMainWindow):
         self.poll.timeout.connect(self.tick)
         self.poll.start(100)
         self.setWindowTitle('Liris for Windows • Preview')
+        self.setWindowIcon(brand_icon())
         self.resize(1220, 790)
 
     def button(self, text, callback):
@@ -143,18 +146,7 @@ class MainWindow(QMainWindow):
         self.tray.show()
 
     def tray_icon(self, active):
-        pixmap = QPixmap(32, 32)
-        pixmap.fill(Qt.GlobalColor.transparent)
-        painter = QPainter(pixmap)
-        painter.setRenderHint(QPainter.RenderHint.Antialiasing)
-        painter.setBrush(QColor('#ffb067' if active else '#c6f59b'))
-        painter.setPen(Qt.PenStyle.NoPen)
-        painter.drawEllipse(3, 3, 26, 26)
-        painter.setPen(QColor('#11191d'))
-        painter.setFont(QFont('Segoe UI', 18, QFont.Weight.Bold))
-        painter.drawText(pixmap.rect(), Qt.AlignmentFlag.AlignCenter, 'L')
-        painter.end()
-        return QIcon(pixmap)
+        return brand_icon(active)
 
     def connect_player(self):
         self.stop_audio()

@@ -7,12 +7,15 @@ from PySide6.QtWidgets import QApplication
 
 from liris.storage import Store
 from liris.ui import MainWindow
+from liris.branding import brand_icon, set_windows_app_id
 
 
 def main():
+    set_windows_app_id()
     app = QApplication(sys.argv)
     app.setQuitOnLastWindowClosed(False)
     app.setApplicationName('Liris Windows')
+    app.setWindowIcon(brand_icon())
     smoke = '--smoke-test' in sys.argv
     store = Store(Path(sys.argv[sys.argv.index('--smoke-test') + 1])) if smoke else Store()
     window = MainWindow(store)
@@ -29,6 +32,7 @@ def main():
             window.connect_player()
             window.connect_player()
             assert not window.audio.enabled and window.audio.thread is None
+            assert not app.windowIcon().isNull() and not window.windowIcon().isNull()
             window.overlay.show()
             window.overlay.set_locked(True)
             assert window.overlay.locked
@@ -38,6 +42,7 @@ def main():
             (store.root / 'smoke.json').write_text(json.dumps({'ok': True, 'audio': 'off',
                 'reconnectAudio': 'off', 'ui': 'rendered', 'overlayLock': 'toggled',
                 'loopbackLibraryImported': True, 'syntheticResampling': True,
+                'brandIconLoaded': True,
                 'captureTested': False, 'recognitionTested': False}))
             window.quit()
         store.root.mkdir(parents=True, exist_ok=True)
