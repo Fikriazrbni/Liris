@@ -1,7 +1,7 @@
 # Liris for Windows — development preview
 
-Implementasi Windows di repo yang sama; Mac v0.4.3, release, Homebrew, `Sources/`,
-`Extension/`, dan `backend/` tidak diubah. Branch: `codex/windows-app`.
+Versi Windows berada di folder `windows/`. Kedua platform menggunakan extension
+di `Extension/` dan backend pengenalan audio di `backend/`.
 
 ## Menjalankan paket
 

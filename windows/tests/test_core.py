@@ -174,6 +174,8 @@ class AudioBoundaryTests(unittest.TestCase):
         self.assertIn('bukan WASAPI loopback', messages[-1])
 
     def test_idle_output_without_callbacks_still_stops_and_closes_stream(self):
+        # Load NumPy before timing the capture thread's startup.
+        import numpy
         from unittest.mock import MagicMock
         fake = MagicMock()
         fake.get_default_wasapi_loopback.return_value = {'isLoopbackDevice': True, 'defaultSampleRate': 48000,
@@ -189,9 +191,11 @@ class AudioBoundaryTests(unittest.TestCase):
         engine = AudioEngine(lambda *a: None, lambda *a: None)
         with patch('pyaudiowpatch.PyAudio', return_value=fake):
             engine.start_manual()
-            self.assertTrue(opened.wait(1))
-            engine.stop()
-            engine.wait(1)
+            try:
+                self.assertTrue(opened.wait(5))
+            finally:
+                engine.stop()
+                engine.wait(5)
         self.assertFalse(engine.thread.is_alive())
         stream.close.assert_called_once()
         fake.terminate.assert_called_once()
