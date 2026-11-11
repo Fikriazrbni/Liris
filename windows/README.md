@@ -5,7 +5,12 @@ Implementasi Windows di repo yang sama; Mac v0.4.3, release, Homebrew, `Sources/
 
 ## Menjalankan paket
 
-Ekstrak **seluruh** `Liris-Windows-x64-preview.zip` ke lokasi tetap, lalu buka
+Untuk instalasi, jalankan `Liris-Setup-Windows-x64.exe`. Liris terpasang untuk
+akun Windows saat ini tanpa hak administrator. Cari **Liris** di Start/Search
+atau buka shortcut desktop jika opsi tersebut dicentang. Untuk menghapusnya,
+buka **Settings → Apps → Installed apps → Liris → Uninstall**.
+
+Untuk versi portable, ekstrak **seluruh** `Liris-Windows-x64-preview.zip` ke lokasi tetap, lalu buka
 `Liris-Windows/Liris.exe`. Jangan pisahkan EXE dari `_internal/` dan dua executable
 pendamping. Paket membawa Python, Qt, WASAPI/PortAudio, ShazamIO dan dependensinya;
 pengguna akhir tidak perlu Python, pip, .NET SDK, atau build manual.
@@ -14,7 +19,7 @@ Target awal Windows 11 x64. Belum ditandatangani; belum diuji pada instalasi Win
 bersih, Windows 10, ARM64, remote desktop, atau perangkat audio lain. Ini preview
 pengembangan, bukan klaim parity final atau release Windows publik.
 
-1. Klik **Setup extension** dari paket yang sudah diekstrak. Ini hanya menulis
+1. Buka **Bantuan → Setup extension Windows** dari Liris. Ini hanya menulis
    manifest host Liris dan key HKCU NativeMessagingHosts untuk Chrome/Brave/Edge.
 2. Buka halaman Extensions browser → Developer mode → Load unpacked → pilih folder
    `Extension` yang dibuka. Extension sama persis dengan extension Mac.
@@ -25,7 +30,8 @@ pengembangan, bukan klaim parity final atau release Windows publik.
    lalu setujui secara manual. **Matikan audio** tersedia di jendela, overlay tidak
    terkunci, dan tray. Connect/reconnect/Putuskan selalu mematikan audio.
 
-Jika folder paket dipindah, jalankan Setup extension lagi agar path native host
+Jika beralih dari portable ke installer, atau folder paket dipindah, jalankan
+Setup extension lagi agar path native host
 diperbarui. Setup tidak menginstal extension secara diam-diam. Untuk menghapus
 registrasi host, jalankan `unregister-bridge.ps1`, lalu hapus extension di browser.
 
