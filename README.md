@@ -1,4 +1,8 @@
-# Liris for macOS
+# Liris
+
+Untuk **Windows 11 x64**, unduh [Liris Windows Preview v0.1.0](https://github.com/Fikriazrbni/Liris/releases/tag/windows-v0.1.0) dan pilih `Liris-Setup-Windows-x64.exe` di bagian **Assets**. Petunjuk instalasi dan pengembangan ada di [windows/README.md](windows/README.md).
+
+## Liris for macOS
 
 Aplikasi desktop native untuk menampilkan lirik tersinkron dari musik yang diputar di **YouTube Music**, dengan dukungan Spotify dan Apple Music desktop. Dibuat dengan SwiftUI + AppKit, tanpa Electron, server lokal, npm, atau API key.
 
