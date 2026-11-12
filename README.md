@@ -14,7 +14,13 @@
 </p>
 
 <p align="center">
-  <img src="docs/overlay-v0.4.4.png" alt="Overlay Liris di Mac dengan judul, nama artis, dan tiga baris lirik" width="800">
+  <a href="https://github.com/Fikriazrbni/Liris/releases/download/v0.4.4/Liris-demo-25s.mp4">
+    <img src="docs/liris-demo-preview.gif" alt="Cuplikan Liris menampilkan lirik sinkron dan overlay saat simulasi pindah aplikasi" width="720">
+  </a>
+</p>
+
+<p align="center">
+  <a href="https://github.com/Fikriazrbni/Liris/releases/download/v0.4.4/Liris-demo-25s.mp4">Tonton demo lengkap · 25 detik dengan audio</a>
 </p>
 
 ## Unduh
