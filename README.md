@@ -1,64 +1,78 @@
 <p align="center">
-  <img src="windows/assets/liris.png" alt="Ikon Liris" width="88">
+  <img src="windows/assets/liris.png" alt="Ikon Liris" width="72">
 </p>
 
 <h1 align="center">Liris</h1>
 
-<p align="center">Lirik yang mengikuti musikmu, langsung di desktop atau di overlay.</p>
+<p align="center">Lirik yang mengikuti musikmu di macOS dan Windows, langsung di aplikasi atau lewat overlay.</p>
 
 <p align="center">
   <a href="#unduh">Unduh</a> ·
-  <a href="#fitur">Fitur</a> ·
   <a href="#mulai-pakai">Mulai pakai</a> ·
+  <a href="#fitur">Fitur</a> ·
   <a href="#dokumentasi">Dokumentasi</a>
+</p>
+
+<p align="center">
+  <img src="docs/overlay-v0.4.4.png" alt="Overlay Liris di Mac dengan judul, nama artis, dan tiga baris lirik" width="800">
 </p>
 
 ## Unduh
 
-| Platform | Unduhan langsung | Catatan rilis |
+| Platform | Paket | Catatan rilis |
 | --- | --- | --- |
-| **macOS 14+ · Apple Silicon** | [Unduh Liris untuk Mac (.zip)](https://github.com/Fikriazrbni/Liris/releases/download/v0.4.4/Liris-v0.4.4-macos-arm64.zip) | [v0.4.4](https://github.com/Fikriazrbni/Liris/releases/tag/v0.4.4) |
-| **Windows 11 · x64** | [Unduh installer Windows (.exe)](https://github.com/Fikriazrbni/Liris/releases/download/windows-v0.1.0/Liris-Setup-Windows-x64.exe) | [Preview v0.1.0](https://github.com/Fikriazrbni/Liris/releases/tag/windows-v0.1.0) |
+| macOS 14+ · Apple Silicon | [Unduh ZIP untuk Mac](https://github.com/Fikriazrbni/Liris/releases/download/v0.4.4/Liris-v0.4.4-macos-arm64.zip) | [v0.4.4](https://github.com/Fikriazrbni/Liris/releases/tag/v0.4.4) |
+| Windows 11 · x64 | [Unduh installer Windows](https://github.com/Fikriazrbni/Liris/releases/download/windows-v0.1.0/Liris-Setup-Windows-x64.exe) | [Preview v0.1.0](https://github.com/Fikriazrbni/Liris/releases/tag/windows-v0.1.0) |
 
-Kedua paket siap dipakai dan sudah menyertakan runtime Python serta ShazamIO. Build Mac belum dinotariskan oleh Apple dan installer Windows belum ditandatangani.
+Python dan ShazamIO sudah disertakan di kedua paket. Build Mac belum dinotariskan oleh Apple dan installer Windows belum ditandatangani.
 
-**Homebrew (Mac)**
+### Homebrew untuk Mac
 
 ```sh
 brew install --cask fikriazrbni/tap/liris
 ```
 
-[Lihat semua rilis](https://github.com/Fikriazrbni/Liris/releases) · [Tap Homebrew](https://github.com/Fikriazrbni/homebrew-tap)
+Jika Liris sudah terpasang lewat Homebrew, jalankan perintah berikut untuk memperbaruinya. [Tap Homebrew](https://github.com/Fikriazrbni/homebrew-tap)
 
-## Fitur
-
-- **Lirik tersinkron** untuk YouTube dan YouTube Music lewat extension browser.
-- **Pengenalan lagu dari audio sistem** untuk Discord dan aplikasi lain lewat ShazamIO. Posisi lirik dari pengenalan audio adalah perkiraan.
-- **Overlay di atas jendela lain** dengan warna, ukuran, dan opasitas yang bisa diatur, serta mode klik tembus.
-- **Lirik dari LRCLIB**, dengan pencarian manual, pilihan versi lirik, impor LRC, dan koreksi waktu per lagu. Lirik yang sudah tersimpan di cache bisa dibuka saat offline.
-
-<p align="center">
-  <img src="docs/preview.png" alt="Demo Liris di macOS dengan lirik dan pengaturan overlay" width="860"><br>
-  <sub>Demo tampilan Liris di macOS</sub>
-</p>
+```sh
+brew update
+brew upgrade --cask fikriazrbni/tap/liris
+```
 
 ## Mulai pakai
 
-1. **Instal.** Di Mac, ekstrak ZIP, pindahkan **Liris.app** ke **Applications**, lalu buka. Di Windows, jalankan installer dan cari **Liris** di menu Start.
-2. **Hubungkan YouTube atau YouTube Music.** Di Mac, buka **Panduan koneksi → Buka extension dan Brave**. Di Windows, buka **Bantuan → Setup extension Windows** untuk Chrome, Brave, atau Edge. Di halaman extension browser, aktifkan **Developer mode**, pilih **Load unpacked**, lalu pilih folder yang dibuka Liris. Muat ulang tab musik dan klik **Hubungkan** di Liris. Pada Mac, pilih sumber **Auto**.
-3. **Untuk Discord atau aplikasi lain**, klik **Aktifkan audio** secara manual setelah terhubung. Gunakan **Matikan audio** untuk berhenti.
+**Buka Liris.** Untuk unduhan ZIP di Mac, ekstrak lalu pindahkan **Liris.app** ke **Applications**. Di Windows, jalankan installer lalu buka **Liris** dari menu Start.
 
-Audio sistem selalu mati saat Liris dibuka, saat menghubungkan, dan saat menghubungkan ulang. Jika diaktifkan, cuplikan output sistem hanya disimpan di RAM dan signature dikirim ke Shazam. Liris tidak membuka mikrofon. Suara percakapan yang terdengar dari speaker atau headphone bisa ikut dianalisis. Pencarian lirik mengirim metadata lagu atau kata kunci ke [LRCLIB](https://lrclib.net/).
+### YouTube dan YouTube Music
+
+1. Buka **Panduan koneksi → Buka extension dan Brave** di Mac, atau **Bantuan → Setup extension Windows** di Windows.
+2. Di halaman Extensions browser, aktifkan **Developer mode**, klik **Load unpacked**, lalu pilih folder yang dibuka Liris.
+3. Muat ulang tab musik dan klik **Hubungkan** di Liris. Di Mac, pilih sumber **Auto** sebelum menghubungkan.
+
+### Discord dan aplikasi lain
+
+Setelah terhubung, klik **Aktifkan audio** untuk mengenali lagu dari output sistem. Klik **Matikan audio** untuk berhenti. Posisi lirik dari pengenalan audio bersifat perkiraan.
+
+## Fitur
+
+- **Lirik tersinkron** mengikuti posisi YouTube dan YouTube Music lewat extension browser.
+- **Overlay mengambang** menampilkan judul lagu serta baris sebelumnya, aktif, dan berikutnya. Warna, ukuran teks, dan opasitas bisa diatur. Di Mac, header juga menampilkan artis jika tersedia, dan ikon gembok bisa diklik untuk mengunci atau membuka kunci langsung.
+- **Pencarian lirik** memakai LRCLIB, dengan pilihan versi, impor LRC, dan koreksi waktu per lagu. Lirik yang tersimpan di cache bisa dibuka saat offline.
+
+## Privasi
+
+Pengenalan audio mati saat aplikasi dibuka atau dihubungkan ulang. Jika kamu mengaktifkannya, Liris membaca output sistem tanpa membuka mikrofon. Cuplikan berada di RAM dan fingerprint dikirim ke Shazam. Suara percakapan yang terdengar di speaker atau headphone bisa ikut dianalisis. Pencarian lirik mengirim metadata lagu atau kata kunci ke LRCLIB.
 
 ## Dokumentasi
 
 - [Panduan macOS](docs/AUTO-SETUP.md) · [Panduan dan build Windows](windows/README.md)
-- [Arsitektur](docs/ARCHITECTURE.md) · [Catatan pengujian macOS](docs/VALIDATION.md) · [Catatan pengujian Windows](windows/VALIDATION.md)
+- [Arsitektur](docs/ARCHITECTURE.md) · [Pengujian macOS](docs/VALIDATION.md) · [Pengujian Windows](windows/VALIDATION.md)
+- [Semua rilis](https://github.com/Fikriazrbni/Liris/releases)
 
 <details>
 <summary>Build lokal di macOS</summary>
 
-Gunakan macOS 14+ dengan Command Line Tools dan Swift 6 untuk menjalankan tes.
+Gunakan macOS 14+, Command Line Tools, dan uv. Tes membutuhkan Swift 6.
 
 ```sh
 ./scripts/setup-shazamio.sh
@@ -67,7 +81,7 @@ Gunakan macOS 14+ dengan Command Line Tools dan Swift 6 untuk menjalankan tes.
 ./scripts/test.sh
 ```
 
-Aplikasi hasil build ada di `dist/Liris.app`. Untuk demo tanpa audio, jalankan `./scripts/run.sh --demo`.
+Hasil build tersedia di `dist/Liris.app`. Jalankan `./scripts/run.sh --demo` untuk demo tanpa audio.
 
 </details>
 
