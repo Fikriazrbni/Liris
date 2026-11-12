@@ -14,13 +14,7 @@
 </p>
 
 <p align="center">
-  <a href="https://github.com/Fikriazrbni/Liris/releases/download/v0.4.4/Liris-demo-25s.mp4">
-    <img src="docs/liris-demo-preview.gif" alt="Cuplikan Liris menampilkan lirik sinkron dan overlay saat simulasi pindah aplikasi" width="720">
-  </a>
-</p>
-
-<p align="center">
-  <a href="https://github.com/Fikriazrbni/Liris/releases/download/v0.4.4/Liris-demo-25s.mp4">Tonton demo lengkap · 25 detik dengan audio</a>
+  <img src="docs/liris-demo-preview.gif" alt="Cuplikan Liris menampilkan lirik sinkron dan overlay saat simulasi pindah aplikasi" width="720">
 </p>
 
 ## Unduh
