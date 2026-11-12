@@ -91,7 +91,7 @@ struct AppearancePage: View {
                             .padding(20).background(LinearGradient(colors: [.gray.opacity(0.12), model.accent.opacity(0.12)], startPoint: .topLeading, endPoint: .bottomTrailing), in: RoundedRectangle(cornerRadius: 20))
                         Button { model.toggleOverlay() } label: { Label(model.overlayVisible ? "Sembunyikan overlay" : "Buka overlay", systemImage: "rectangle.on.rectangle") }
                             .buttonStyle(AccentButton(color: model.accent))
-                        Text("Geser overlay untuk memindahkannya. Saat terkunci, gunakan menu Liris di menu bar untuk membuka kunci. ⇧⌘L menampilkan atau menyembunyikan overlay saat aplikasi aktif.")
+                        Text("Tarik pegangan atas untuk memindahkan overlay. Klik ikon gembok untuk mengunci atau membuka kunci. ⇧⌘L menampilkan atau menyembunyikan overlay saat aplikasi aktif.")
                             .font(.system(size: 11)).foregroundStyle(Palette.muted).lineSpacing(5)
                     }.frame(maxWidth: .infinity)
                 }

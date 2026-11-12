@@ -1,4 +1,4 @@
-# Mode Auto 0.4.3
+# Mode Auto 0.4.4
 
 ## YouTube dan YouTube Music di Brave
 

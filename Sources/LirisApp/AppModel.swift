@@ -102,6 +102,11 @@ final class AppModel: ObservableObject {
         guard let index = activeIndex else { return hasTrack ? "Menunggu bait pertama…" : "Musikmu, kata demi kata." }
         return lines[index].text.isEmpty ? "♪" : lines[index].text
     }
+    var previousText: String {
+        if connected && playerTimeHealth == .waiting { return "" }
+        guard let index = activeIndex, index > 0 else { return "" }
+        return lines[index - 1].text
+    }
     var nextText: String {
         if connected && playerTimeHealth == .waiting { return "" }
         let index = (activeIndex ?? -1) + 1

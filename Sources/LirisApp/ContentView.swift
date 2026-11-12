@@ -55,7 +55,7 @@ struct ContentView: View {
                 Circle().fill(model.accent).frame(width: 5, height: 5)
                 Text("NATIVE DI MAC").font(.system(size: 8, weight: .semibold)).tracking(1.2)
                 Spacer()
-                Text("v0.4.3").font(.system(size: 9)).foregroundStyle(Palette.muted)
+                Text("v\(Bundle.main.object(forInfoDictionaryKey: "CFBundleShortVersionString") as? String ?? "0.4.4")").font(.system(size: 9)).foregroundStyle(Palette.muted)
             }.foregroundStyle(Palette.muted)
         }
         .padding(.horizontal, 22).padding(.top, 56).padding(.bottom, 24)
