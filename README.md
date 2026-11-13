@@ -10,6 +10,7 @@
   <a href="#unduh">Unduh</a> ·
   <a href="#mulai-pakai">Mulai pakai</a> ·
   <a href="#fitur">Fitur</a> ·
+  <a href="#tampilan">Tampilan</a> ·
   <a href="#dokumentasi">Dokumentasi</a>
 </p>
 
@@ -58,6 +59,20 @@ Setelah terhubung, klik **Aktifkan audio** untuk mengenali lagu dari output sist
 - **Lirik tersinkron** mengikuti posisi YouTube dan YouTube Music lewat extension browser.
 - **Overlay mengambang** menampilkan judul lagu serta baris sebelumnya, aktif, dan berikutnya. Warna, ukuran teks, dan opasitas bisa diatur. Di Mac, header juga menampilkan artis jika tersedia, dan ikon gembok bisa diklik untuk mengunci atau membuka kunci langsung.
 - **Pencarian lirik** memakai LRCLIB, dengan pilihan versi, impor LRC, dan koreksi waktu per lagu. Lirik yang tersimpan di cache bisa dibuka saat offline.
+
+## Tampilan
+
+Kedua screenshot diambil dari Liris Mac v0.4.4 dalam mode demo.
+
+<p align="center">
+  <img src="docs/main-v0.4.4.png" alt="Jendela utama Liris dengan lirik tersinkron dan panel pengaturan" width="800"><br>
+  <sub>Jendela utama</sub>
+</p>
+
+<p align="center">
+  <img src="docs/overlay-v0.4.4.png" alt="Overlay Liris dengan nama artis serta baris lirik sebelumnya, aktif, dan berikutnya" width="800"><br>
+  <sub>Overlay tiga baris</sub>
+</p>
 
 ## Privasi
 
