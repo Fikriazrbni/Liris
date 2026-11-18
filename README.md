@@ -22,7 +22,7 @@
 
 | Platform | Paket | Catatan rilis |
 | --- | --- | --- |
-| macOS 14+ · Apple Silicon | [Unduh ZIP untuk Mac](https://github.com/Fikriazrbni/Liris/releases/download/v0.4.4/Liris-v0.4.4-macos-arm64.zip) | [v0.4.4](https://github.com/Fikriazrbni/Liris/releases/tag/v0.4.4) |
+| macOS 14+ · Apple Silicon | [Unduh ZIP untuk Mac](https://github.com/Fikriazrbni/Liris/releases/download/v0.4.5/Liris-v0.4.5-macos-arm64.zip) | [v0.4.5](https://github.com/Fikriazrbni/Liris/releases/tag/v0.4.5) |
 | Windows 11 · x64 | [Unduh installer Windows](https://github.com/Fikriazrbni/Liris/releases/download/windows-v0.1.0/Liris-Setup-Windows-x64.exe) | [Preview v0.1.0](https://github.com/Fikriazrbni/Liris/releases/tag/windows-v0.1.0) |
 
 Python dan ShazamIO sudah disertakan di kedua paket. Build Mac belum dinotariskan oleh Apple dan installer Windows belum ditandatangani.

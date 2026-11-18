@@ -61,11 +61,24 @@ struct LirisApp: App {
         MenuBarExtra {
             MenuBarView().environmentObject(model)
         } label: {
-            Label(model.audioActivity.isEngaged ? "Liris · Audio aktif" : "Liris",
-                  systemImage: model.audioActivity.isEngaged ? "record.circle.fill" : "quote.bubble.fill")
+            if model.audioActivity.isEngaged {
+                Label("Liris · Audio aktif", systemImage: "record.circle.fill")
+            } else {
+                Image(nsImage: Self.menuMark).accessibilityLabel("Liris")
+            }
         }
         .menuBarExtraStyle(.window)
     }
+
+    fileprivate static let menuMark: NSImage = {
+        guard let url = Bundle.module.url(forResource: "lyric-mark", withExtension: "svg", subdirectory: "Resources"),
+              let image = NSImage(contentsOf: url) else {
+            return NSImage(systemSymbolName: "text.aligncenter", accessibilityDescription: "Liris")!
+        }
+        image.size = NSSize(width: 19.2, height: 12)
+        image.isTemplate = true
+        return image
+    }()
 }
 
 struct MenuBarView: View {
@@ -73,7 +86,8 @@ struct MenuBarView: View {
     @Environment(\.openWindow) private var openWindow
     var body: some View {
         VStack(alignment: .leading, spacing: 14) {
-            Label("Liris", systemImage: "waveform").font(.headline).foregroundStyle(model.accent)
+            Label { Text("Liris") } icon: { Image(nsImage: LirisApp.menuMark) }
+                .font(.headline).foregroundStyle(model.accent)
             AudioCaptureStatusView(compact: true)
             Text(model.hasTrack ? model.title : "Menunggu musikmu").font(.headline).lineLimit(2)
             Text(model.hasTrack ? model.currentText : model.status).font(.callout).foregroundStyle(.secondary).lineLimit(3)

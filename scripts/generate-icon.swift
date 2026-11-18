@@ -1,6 +1,9 @@
 import AppKit
 
 let directory = URL(fileURLWithPath: CommandLine.arguments[1])
+let markURL = URL(fileURLWithPath: #filePath).deletingLastPathComponent()
+    .deletingLastPathComponent().appendingPathComponent("Sources/LirisApp/Resources/lyric-mark.svg")
+guard let mark = NSImage(contentsOf: markURL) else { fatalError("Missing lyric mark at \(markURL.path)") }
 try FileManager.default.createDirectory(at: directory, withIntermediateDirectories: true)
 for base in [16, 32, 128, 256, 512] {
     for scale in [1, 2] {
@@ -14,15 +17,11 @@ for base in [16, 32, 128, 256, 512] {
         let context = NSGraphicsContext.current!.cgContext
         context.scaleBy(x: factor, y: factor)
         let background = NSBezierPath(roundedRect: NSRect(x: 32, y: 32, width: 960, height: 960), xRadius: 218, yRadius: 218)
-        NSColor(calibratedRed: 0.79, green: 0.94, blue: 0.48, alpha: 1).setFill(); background.fill()
-        NSColor(calibratedRed: 0.79, green: 0.94, blue: 0.48, alpha: 0.09).setStroke()
+        NSGradient(starting: NSColor(white: 0.16, alpha: 1), ending: NSColor(white: 0.065, alpha: 1))!
+            .draw(in: background, angle: -90)
+        NSColor(white: 1, alpha: 0.12).setStroke()
         background.lineWidth = 3; background.stroke()
-        let heights: [CGFloat] = [120, 245, 390, 520, 350, 220, 110]
-        for (index, height) in heights.enumerated() {
-            let rect = NSRect(x: 247 + CGFloat(index) * 78, y: 512 - height / 2, width: 42, height: height)
-            NSColor(calibratedRed: 0.055, green: 0.063, blue: 0.067, alpha: 1).setFill()
-            NSBezierPath(roundedRect: rect, xRadius: 21, yRadius: 21).fill()
-        }
+        mark.draw(in: NSRect(x: 152, y: 287, width: 720, height: 450))
         NSGraphicsContext.restoreGraphicsState()
         let suffix = scale == 2 ? "@2x" : ""
         try bitmap.representation(using: .png, properties: [:])!.write(to: directory.appendingPathComponent("icon_\(base)x\(base)\(suffix).png"))
