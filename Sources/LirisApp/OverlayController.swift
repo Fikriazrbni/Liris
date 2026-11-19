@@ -166,7 +166,8 @@ struct OverlayView: View {
     var body: some View {
         VStack(spacing: 8) {
             HStack(spacing: 7) {
-                Image(systemName: "waveform").foregroundStyle(model.accent)
+                Image(nsImage: LirisMark.image).resizable().scaledToFit().frame(width: 15, height: 10)
+                    .foregroundStyle(model.accent).accessibilityHidden(true)
                 Text("LIRIS").tracking(2)
                 Text("/").foregroundStyle(.white.opacity(0.2))
                 Text(trackLabel).lineLimit(1).help(trackLabel)

@@ -26,6 +26,8 @@ fi
 cp -R "$binary_dir/Liris_LirisApp.bundle" "$app_dir/Contents/Resources/"
 swift "$project_dir/scripts/generate-icon.swift" "$project_dir/.build/Liris.iconset"
 cp "$project_dir/.build/Liris.icns" "$app_dir/Contents/Resources/LirisDock.icns"
+# Older in-place builds also had a separate top-level app icon.
+rm -f "$app_dir/Contents/Resources/Liris.icns"
 if [[ ! -x "$project_dir/.runtime/shazamio/bin/python" ]]; then
     echo "Run ./scripts/setup-shazamio.sh before building the audio-enabled app." >&2
     exit 1
@@ -37,4 +39,6 @@ python3 "$project_dir/scripts/bundle-python.py" "$project_dir" "$app_dir"
 codesign --force --sign - "$app_dir/Contents/MacOS/LirisBridge"
 codesign --force --sign - --options runtime --entitlements "$project_dir/Resources/Liris.entitlements" "$app_dir"
 codesign --verify --deep --strict "$app_dir"
+# Launchers may cache file icons by the outer bundle's modification date.
+touch "$app_dir"
 echo "Built: $app_dir"

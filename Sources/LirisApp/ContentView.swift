@@ -32,7 +32,7 @@ struct ContentView: View {
             HStack(spacing: 10) {
                 ZStack {
                     RoundedRectangle(cornerRadius: 11).fill(model.accent).frame(width: 36, height: 36)
-                    Image(systemName: "waveform").font(.system(size: 19, weight: .semibold)).foregroundStyle(Palette.background)
+                    Image(nsImage: LirisMark.image).accessibilityHidden(true).foregroundStyle(Palette.background)
                 }
                 Text("liris").font(.system(size: 29, weight: .semibold, design: .rounded)).tracking(-1.5)
             }.padding(.bottom, 10)
@@ -55,7 +55,7 @@ struct ContentView: View {
                 Circle().fill(model.accent).frame(width: 5, height: 5)
                 Text("NATIVE DI MAC").font(.system(size: 8, weight: .semibold)).tracking(1.2)
                 Spacer()
-                Text("v\(Bundle.main.object(forInfoDictionaryKey: "CFBundleShortVersionString") as? String ?? "0.4.5")").font(.system(size: 9)).foregroundStyle(Palette.muted)
+                Text("v\(Bundle.main.object(forInfoDictionaryKey: "CFBundleShortVersionString") as? String ?? "0.4.6")").font(.system(size: 9)).foregroundStyle(Palette.muted)
             }.foregroundStyle(Palette.muted)
         }
         .padding(.horizontal, 22).padding(.top, 56).padding(.bottom, 24)
@@ -155,9 +155,17 @@ struct SourceBar: View {
                 }.labelsHidden().frame(maxWidth: 140)
             }
             Spacer(minLength: 0)
-            Button(model.connected ? "Putuskan" : "Hubungkan") {
-                if model.connected { model.disconnect() } else { model.connect() }
-            }.buttonStyle(AccentButton(color: model.accent))
+            ConnectionButton().buttonStyle(AccentButton(color: model.accent))
+        }
+    }
+}
+
+struct ConnectionButton: View {
+    @EnvironmentObject private var model: AppModel
+
+    var body: some View {
+        Button(model.connected ? "Putuskan" : "Hubungkan") {
+            if model.connected { model.disconnect() } else { model.connect() }
         }
     }
 }
@@ -272,9 +280,9 @@ struct LyricStage: View {
                 ScrollView { Text(plain).font(.system(size: 18, weight: .medium)).lineSpacing(12).multilineTextAlignment(.center).foregroundStyle(.white.opacity(0.7)).padding(16).frame(maxWidth: .infinity) }
             } else {
                 Spacer()
-                Image(systemName: "waveform.path").font(.system(size: 39, weight: .ultraLight)).foregroundStyle(model.accent.opacity(0.7))
-                Text(model.source == .auto && model.connected ? AutoHub.shared.audio.progressStatus : "Satu lagu. Seribu rasa.").font(.system(size: model.source == .auto && model.connected ? 16 : 24, weight: .medium, design: .serif)).padding(.top, 17)
-                Text("Putar lagu di YouTube Music, lalu klik Hubungkan.\nLirik akan mengikuti dari bait pertama.")
+                Image(nsImage: LirisMark.image).resizable().scaledToFit().frame(width: 44).accessibilityHidden(true).foregroundStyle(model.accent.opacity(0.7))
+                Text(model.source == .auto && model.connected ? model.status : "Satu lagu. Seribu rasa.").font(.system(size: model.source == .auto && model.connected ? 16 : 24, weight: .medium, design: .serif)).padding(.top, 17)
+                Text(model.connected ? "Putar lagu di pemutar yang terhubung.\nLirik akan mengikuti saat tersedia." : "Pilih sumber musik, lalu klik Hubungkan.")
                     .font(.system(size: 12)).foregroundStyle(Palette.muted).multilineTextAlignment(.center).lineSpacing(5).padding(.top, 8)
                 HStack(spacing: 12) {
                     Button("Panduan koneksi") { model.section = .help }.buttonStyle(QuietButton())

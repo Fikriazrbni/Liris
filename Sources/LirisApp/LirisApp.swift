@@ -6,7 +6,7 @@ typealias ViewState<Value> = SwiftUI.State<Value>
 
 @main
 struct LirisApp: App {
-    @StateObject private var model = AppModel()
+    @StateObject private var model = AppModel(connectOnLaunch: true)
 
     init() {
         let args = ProcessInfo.processInfo.arguments
@@ -64,13 +64,15 @@ struct LirisApp: App {
             if model.audioActivity.isEngaged {
                 Label("Liris · Audio aktif", systemImage: "record.circle.fill")
             } else {
-                Image(nsImage: Self.menuMark).accessibilityLabel("Liris")
+                Image(nsImage: LirisMark.image).accessibilityLabel("Liris")
             }
         }
         .menuBarExtraStyle(.window)
     }
+}
 
-    fileprivate static let menuMark: NSImage = {
+enum LirisMark {
+    static let image: NSImage = {
         guard let url = Bundle.module.url(forResource: "lyric-mark", withExtension: "svg", subdirectory: "Resources"),
               let image = NSImage(contentsOf: url) else {
             return NSImage(systemSymbolName: "text.aligncenter", accessibilityDescription: "Liris")!
@@ -86,8 +88,9 @@ struct MenuBarView: View {
     @Environment(\.openWindow) private var openWindow
     var body: some View {
         VStack(alignment: .leading, spacing: 14) {
-            Label { Text("Liris") } icon: { Image(nsImage: LirisApp.menuMark) }
+            Label { Text("Liris") } icon: { Image(nsImage: LirisMark.image) }
                 .font(.headline).foregroundStyle(model.accent)
+            ConnectionButton().buttonStyle(AccentButton(color: model.accent))
             AudioCaptureStatusView(compact: true)
             Text(model.hasTrack ? model.title : "Menunggu musikmu").font(.headline).lineLimit(2)
             Text(model.hasTrack ? model.currentText : model.status).font(.callout).foregroundStyle(.secondary).lineLimit(3)

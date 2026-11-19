@@ -40,7 +40,7 @@ final class AutoHub {
         }
         selected = nil
         if let snapshot = audio.snapshot() { route = "Auto · audio sistem (ShazamIO)"; return snapshot }
-        route = audio.progressStatus
+        route = audio.activity.isEngaged ? audio.progressStatus : "Menunggu musik dari extension YouTube atau YouTube Music."
         return nil
     }
     func control(track: TrackSnapshot, position: Double?) throws {

@@ -22,7 +22,7 @@
 
 | Platform | Paket | Catatan rilis |
 | --- | --- | --- |
-| macOS 14+ · Apple Silicon | [Unduh ZIP untuk Mac](https://github.com/Fikriazrbni/Liris/releases/download/v0.4.5/Liris-v0.4.5-macos-arm64.zip) | [v0.4.5](https://github.com/Fikriazrbni/Liris/releases/tag/v0.4.5) |
+| macOS 14+ · Apple Silicon | [Unduh ZIP untuk Mac](https://github.com/Fikriazrbni/Liris/releases/download/v0.4.6/Liris-v0.4.6-macos-arm64.zip) | [v0.4.6](https://github.com/Fikriazrbni/Liris/releases/tag/v0.4.6) |
 | Windows 11 · x64 | [Unduh installer Windows](https://github.com/Fikriazrbni/Liris/releases/download/windows-v0.1.0/Liris-Setup-Windows-x64.exe) | [Preview v0.1.0](https://github.com/Fikriazrbni/Liris/releases/tag/windows-v0.1.0) |
 
 Python dan ShazamIO sudah disertakan di kedua paket. Build Mac belum dinotariskan oleh Apple dan installer Windows belum ditandatangani.
@@ -48,7 +48,7 @@ brew upgrade --cask fikriazrbni/tap/liris
 
 1. Buka **Panduan koneksi → Buka extension dan Brave** di Mac, atau **Bantuan → Setup extension Windows** di Windows.
 2. Di halaman Extensions browser, aktifkan **Developer mode**, klik **Load unpacked**, lalu pilih folder yang dibuka Liris.
-3. Muat ulang tab musik dan klik **Hubungkan** di Liris. Di Mac, pilih sumber **Auto** sebelum menghubungkan.
+3. Muat ulang tab musik. Di Mac, Liris langsung mencoba terhubung ke sumber terakhir saat dibuka. Untuk extension, pilih **Auto**. Kalau koneksinya terputus, klik **Hubungkan** di jendela Liris atau dari ikon di menu bar. Di Windows, klik **Hubungkan**.
 
 ### Discord dan aplikasi lain
 

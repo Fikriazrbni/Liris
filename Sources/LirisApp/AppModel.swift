@@ -6,7 +6,7 @@ import UniformTypeIdentifiers
 enum Section: String, CaseIterable {
     case listening = "Sedang diputar", search = "Cari lirik", appearance = "Tampilan", help = "Panduan koneksi"
     var symbol: String {
-        switch self { case .listening: "waveform"; case .search: "magnifyingglass"; case .appearance: "slider.horizontal.3"; case .help: "questionmark.circle" }
+        switch self { case .listening: "play.circle"; case .search: "magnifyingglass"; case .appearance: "slider.horizontal.3"; case .help: "questionmark.circle" }
     }
 }
 
@@ -75,7 +75,7 @@ final class AppModel: ObservableObject {
 
     var activeIndex: Int? { LRCParser.activeIndex(in: lines, at: position, adjustment: offset) }
     var title: String { snapshot?.title ?? record?.trackName ?? "Musik menyala.\nLirik ikut bercerita." }
-    var artist: String { snapshot?.artist ?? record?.artistName ?? "Hubungkan YouTube Music untuk mulai mendengarkan." }
+    var artist: String { snapshot?.artist ?? record?.artistName ?? (connected ? "Menunggu musik dari pemutar." : "Hubungkan pemutar untuk mulai mendengarkan.") }
     var hasTrack: Bool { snapshot != nil || record != nil }
     var canSeek: Bool { hasTrack && snapshot?.positionSource != "recognition" && snapshot?.positionSource != "extension-progress" && !(connected && source == .youtube && effectiveTimeSource != .media) }
     var syncNeedsAttention: Bool { playerTimeHealth == .waiting || playerTimeHealth == .limited || lyricsResolution?.confidence != .compatible }
@@ -114,13 +114,13 @@ final class AppModel: ObservableObject {
         return lines[index].text
     }
 
-    init(audio: (any AudioCaptureControlling)? = nil,
+    init(connectOnLaunch: Bool = false, audio: (any AudioCaptureControlling)? = nil,
          pollPlayer: @escaping @MainActor (MusicSource, Browser) async throws -> TrackSnapshot? = { try await MediaBridge.poll(source: $0, browser: $1) }) {
         self.audio = audio ?? AutoHub.shared.audio
         self.pollPlayer = pollPlayer
         let defaults = UserDefaults.standard
         defaults.removeObject(forKey: "autoAudioEnabled") // Migrate the old opt-in; each session now requires a click.
-        source = MusicSource(rawValue: defaults.string(forKey: "source") ?? "") ?? .youtube
+        source = MusicSource(rawValue: defaults.string(forKey: "source") ?? "") ?? .auto
         browser = Browser(rawValue: defaults.string(forKey: "browser") ?? "") ?? .brave
         fontSize = defaults.object(forKey: "fontSize") == nil ? 28 : defaults.double(forKey: "fontSize")
         opacity = defaults.object(forKey: "opacity") == nil ? 0.88 : defaults.double(forKey: "opacity")
@@ -129,7 +129,11 @@ final class AppModel: ObservableObject {
             .appendingPathComponent("id.local.liris/lyrics", isDirectory: true)
         client = LyricsClient(cacheDirectory: cache)
         ticker = Timer.publish(every: 0.1, on: .main, in: .common).autoconnect().sink { [weak self] _ in self?.tick() }
-        if ProcessInfo.processInfo.arguments.contains("--demo") { startDemo() }
+        if ProcessInfo.processInfo.arguments.contains("--demo") {
+            startDemo()
+        } else if connectOnLaunch {
+            connect()
+        }
     }
 
     private func tick() {

@@ -33,6 +33,26 @@ struct AudioControlsTests {
         try? await Task.sleep(for: .milliseconds(20))
     }
 
+    @Test func launchConnectsToSavedSourceWithoutStartingCapture() async {
+        let defaults = UserDefaults.standard
+        let previous = defaults.object(forKey: "source")
+        defer { defaults.set(previous, forKey: "source") }
+        defaults.set(MusicSource.music.rawValue, forKey: "source")
+        let audio = FakeAudioCapture()
+        var polledSource: MusicSource?
+        let subject = AppModel(connectOnLaunch: true, audio: audio) { source, _ in
+            polledSource = source
+            return nil
+        }
+        await settle()
+        #expect(subject.connected)
+        #expect(polledSource == .music)
+        #expect(audio.starts == 0)
+        subject.disconnect()
+        await settle()
+        #expect(!subject.connected)
+    }
+
     @Test func connectNeverRestoresOldAudioPreference() async {
         let defaults = UserDefaults.standard
         let previous = defaults.object(forKey: "autoAudioEnabled")
