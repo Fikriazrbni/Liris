@@ -7,6 +7,7 @@ typealias ViewState<Value> = SwiftUI.State<Value>
 @main
 struct LirisApp: App {
     @StateObject private var model = AppModel(connectOnLaunch: true)
+    private let mainWindow = MainWindowController()
 
     init() {
         let args = ProcessInfo.processInfo.arguments
@@ -33,13 +34,16 @@ struct LirisApp: App {
     }
 
     var body: some Scene {
-        WindowGroup("Liris", id: "main") {
-            ContentView().environmentObject(model)
-                .preferredColorScheme(.dark)
-                .frame(minWidth: 1040, minHeight: 700)
+        MenuBarExtra {
+            MenuBarView(openMainWindow: { mainWindow.show(model: model) }).environmentObject(model)
+        } label: {
+            if model.audioActivity.isEngaged {
+                Label("Liris · Audio aktif", systemImage: "record.circle.fill")
+            } else {
+                Image(nsImage: LirisMark.image).accessibilityLabel("Liris")
+            }
         }
-        .defaultSize(width: 1220, height: 790)
-        .windowStyle(.hiddenTitleBar)
+        .menuBarExtraStyle(.menu)
         .commands {
             CommandGroup(replacing: .newItem) {}
             CommandMenu("Lirik") {
@@ -58,16 +62,6 @@ struct LirisApp: App {
                     .keyboardShortcut(.leftArrow, modifiers: [.command, .option])
             }
         }
-        MenuBarExtra {
-            MenuBarView().environmentObject(model)
-        } label: {
-            if model.audioActivity.isEngaged {
-                Label("Liris · Audio aktif", systemImage: "record.circle.fill")
-            } else {
-                Image(nsImage: LirisMark.image).accessibilityLabel("Liris")
-            }
-        }
-        .menuBarExtraStyle(.window)
     }
 }
 
@@ -83,27 +77,66 @@ enum LirisMark {
     }()
 }
 
+@MainActor
+final class MainWindowController {
+    private var window: NSWindow?
+
+    func show(model: AppModel) {
+        let main: NSWindow
+        if let window {
+            main = window
+        } else {
+            main = NSWindow(contentRect: NSRect(x: 0, y: 0, width: 1220, height: 790),
+                            styleMask: [.titled, .closable, .miniaturizable, .resizable, .fullSizeContentView],
+                            backing: .buffered, defer: false)
+            main.title = "Liris"
+            main.titleVisibility = .hidden
+            main.titlebarAppearsTransparent = true
+            main.isReleasedWhenClosed = false
+            main.isRestorable = false
+            main.tabbingMode = .disallowed
+            main.collectionBehavior = [.moveToActiveSpace, .fullScreenAuxiliary]
+            main.contentView = NSHostingView(rootView: ContentView().environmentObject(model)
+                .preferredColorScheme(.dark).frame(minWidth: 1040, minHeight: 700))
+            main.contentMinSize = NSSize(width: 1040, height: 700)
+            main.center()
+            window = main
+        }
+
+        if main.isMiniaturized { main.deminiaturize(nil) }
+        NSApp.activate(ignoringOtherApps: true)
+        main.makeKeyAndOrderFront(nil)
+    }
+}
+
 struct MenuBarView: View {
     @EnvironmentObject private var model: AppModel
-    @Environment(\.openWindow) private var openWindow
+    let openMainWindow: () -> Void
+
     var body: some View {
-        VStack(alignment: .leading, spacing: 14) {
-            Label { Text("Liris") } icon: { Image(nsImage: LirisMark.image) }
-                .font(.headline).foregroundStyle(model.accent)
-            ConnectionButton().buttonStyle(AccentButton(color: model.accent))
-            AudioCaptureStatusView(compact: true)
-            Text(model.hasTrack ? model.title : "Menunggu musikmu").font(.headline).lineLimit(2)
-            Text(model.hasTrack ? model.currentText : model.status).font(.callout).foregroundStyle(.secondary).lineLimit(3)
-            Divider()
-            Button(model.overlayVisible ? "Sembunyikan overlay" : "Tampilkan overlay") { model.toggleOverlay() }
-            if model.overlayVisible {
-                Button(model.overlayLocked ? "Buka kunci overlay" : "Kunci overlay") {
-                    model.overlayLocked.toggle(); model.overlayController.updateLock()
-                }
+        Button("Buka Liris", action: openMainWindow)
+        Divider()
+        Text(model.hasTrack ? model.title : "Menunggu musikmu")
+        Text(model.hasTrack ? model.currentText : model.status)
+        ConnectionButton()
+        Divider()
+        Text(model.audioActivity.headline)
+        if model.audioActivity.isEngaged {
+            Button("Matikan audio") { model.stopAudioRecognition() }
+                .disabled(model.audioActivity.phase == .stopping)
+        } else {
+            Button("Aktifkan audio") { model.enableAudioRecognition() }
+                .disabled(!model.canStartAudioRecognition)
+        }
+        Divider()
+        Button(model.overlayVisible ? "Sembunyikan overlay" : "Tampilkan overlay") { model.toggleOverlay() }
+        if model.overlayVisible {
+            Button(model.overlayLocked ? "Buka kunci overlay" : "Kunci overlay") {
+                model.overlayLocked.toggle(); model.overlayController.updateLock()
             }
-            Button("Buka Liris") { openWindow(id: "main"); NSApp.activate(ignoringOtherApps: true) }
-            Button("Keluar dari Liris") { NSApp.terminate(nil) }
-        }.padding(20).frame(width: 300).buttonStyle(.plain)
+        }
+        Divider()
+        Button("Keluar") { NSApp.terminate(nil) }
     }
 }
 

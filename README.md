@@ -22,7 +22,7 @@
 
 | Platform | Paket | Catatan rilis |
 | --- | --- | --- |
-| macOS 14+ · Apple Silicon | [Unduh ZIP untuk Mac](https://github.com/Fikriazrbni/Liris/releases/download/v0.4.6/Liris-v0.4.6-macos-arm64.zip) | [v0.4.6](https://github.com/Fikriazrbni/Liris/releases/tag/v0.4.6) |
+| macOS 14+ · Apple Silicon | [Unduh ZIP untuk Mac](https://github.com/Fikriazrbni/Liris/releases/download/v0.4.7/Liris-v0.4.7-macos-arm64.zip) | [v0.4.7](https://github.com/Fikriazrbni/Liris/releases/tag/v0.4.7) |
 | Windows 11 · x64 | [Unduh installer Windows](https://github.com/Fikriazrbni/Liris/releases/download/windows-v0.1.0/Liris-Setup-Windows-x64.exe) | [Preview v0.1.0](https://github.com/Fikriazrbni/Liris/releases/tag/windows-v0.1.0) |
 
 Python dan ShazamIO sudah disertakan di kedua paket. Build Mac belum dinotariskan oleh Apple dan installer Windows belum ditandatangani.
@@ -43,6 +43,8 @@ brew upgrade --cask fikriazrbni/tap/liris
 ## Mulai pakai
 
 **Buka Liris.** Untuk unduhan ZIP di Mac, ekstrak lalu pindahkan **Liris.app** ke **Applications**. Di Windows, jalankan installer lalu buka **Liris** dari menu Start.
+
+Mulai v0.4.7 di Mac, Liris langsung berjalan di menu bar dengan jendela tertutup. Klik ikon tiga baris di dekat jam (atau indikator rekam saat audio aktif), lalu pilih **Buka Liris**. Pilihan itu juga mengembalikan jendela yang diminimalkan. Liris tersembunyi dari Dock dan ⌘ Tab. Menutup jendela membiarkan koneksi dan overlay tetap berjalan. Untuk berhenti sepenuhnya, pilih **Keluar** dari menu yang sama.
 
 ### YouTube dan YouTube Music
 

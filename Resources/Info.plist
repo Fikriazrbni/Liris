@@ -7,9 +7,10 @@
     <key>CFBundleExecutable</key><string>Liris</string>
     <key>CFBundleIdentifier</key><string>id.local.liris</string>
     <key>CFBundlePackageType</key><string>APPL</string>
-    <key>CFBundleShortVersionString</key><string>0.4.6</string>
-    <key>CFBundleVersion</key><string>12</string>
+    <key>CFBundleShortVersionString</key><string>0.4.7</string>
+    <key>CFBundleVersion</key><string>13</string>
     <key>CFBundleIconFile</key><string>LirisDock.icns</string>
+    <key>LSUIElement</key><true/>
     <key>LSMinimumSystemVersion</key><string>14.0</string>
     <key>LirisAudioProvider</key><string>shazamio</string>
     <key>NSAudioCaptureUsageDescription</key><string>Mengenali lagu dari audio sistem untuk menampilkan lirik, termasuk musik dari Discord. Audio tidak disimpan.</string>
