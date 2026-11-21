@@ -5,7 +5,7 @@ const path = require('node:path');
 const vm = require('node:vm');
 const code = fs.readFileSync(path.join(__dirname, '../Sources/LirisApp/Resources/youtube-music.js'), 'utf8');
 
-function probe({ title = 'Ruang Senja', artist = 'Liris Studio', video = {}, metadata, sessionState, ad = false, missing = false, progressMax, progressNow, timeInfo, url = 'https://music.youtube.com/watch?v=track-123&list=playlist' } = {}) {
+function probe({ title = 'Evening Room', artist = 'Liris Studio', video = {}, metadata, sessionState, ad = false, missing = false, progressMax, progressNow, timeInfo, url = 'https://music.youtube.com/watch?v=track-123&list=playlist' } = {}) {
   const nodes = {
     '.title': { textContent: title }, '.byline': { textContent: artist + ' • Album • 2026' },
     '.byline a': { textContent: artist }, img: { src: 'https://example.test/art.jpg' }
@@ -29,7 +29,7 @@ function probe({ title = 'Ruang Senja', artist = 'Liris Studio', video = {}, met
 
 test('reads actual media position and identity rather than estimating duration', () => {
   const result = probe();
-  assert.equal(result.id, 'track-123'); assert.equal(result.title, 'Ruang Senja');
+  assert.equal(result.id, 'track-123'); assert.equal(result.title, 'Evening Room');
   assert.equal(result.artist, 'Liris Studio'); assert.equal(result.position, 23.45);
   assert.equal(result.duration, 180); assert.equal(result.playing, true);
 });
@@ -61,7 +61,7 @@ test('visible clock is a fallback when progress attributes are unavailable', () 
   assert.equal(probe({ timeInfo: '01:03:52 / 01:04:59' }).duration, 3899);
 });
 test('home-page playback has a stable identity without a watch URL', () => {
-  assert.equal(probe({ url: 'https://music.youtube.com/' }).id, 'Ruang Senja|Liris Studio');
+  assert.equal(probe({ url: 'https://music.youtube.com/' }).id, 'Evening Room|Liris Studio');
 });
 
 test('21 Guns regression: visible 0:29 overrides a retained media clock at 2:52', () => {

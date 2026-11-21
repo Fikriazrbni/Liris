@@ -60,7 +60,7 @@ class AudioEngine:
             epoch = self.epoch
             self.enabled = True
             self.stop_event = threading.Event()
-            self.status(epoch, 'Mengaktifkan output audio…')
+            self.status(epoch, 'Starting system audio…')
             self.thread = threading.Thread(target=self._capture, args=(epoch, self.stop_event), daemon=True)
             self.thread.start()
             return True
@@ -73,9 +73,9 @@ class AudioEngine:
             if self.process and self.process.poll() is None:
                 self.process.kill()
             if self.thread and self.thread.is_alive():
-                self.on_status(self.epoch, 'Menghentikan audio…')
+                self.on_status(self.epoch, 'Stopping audio…')
             else:
-                self.on_status(self.epoch, 'Mati')
+                self.on_status(self.epoch, 'Off')
 
     def suppress(self, value):
         with self.lock:
@@ -86,8 +86,8 @@ class AudioEngine:
             if value and self.process and self.process.poll() is None:
                 self.process.kill()
             if self.enabled and changed:
-                self.status(self.epoch, 'Aktif • ditahan karena extension bermain/iklan' if value
-                            else 'Aktif • menunggu output audio')
+                self.status(self.epoch, 'On • recognition paused during browser playback or ads' if value
+                            else 'On • waiting for system audio')
 
     def _recognize(self, payload, start, epoch, stop, suppression_epoch):
         kwargs = {'creationflags': subprocess.CREATE_NO_WINDOW} if sys.platform == 'win32' else {}
@@ -99,25 +99,25 @@ class AudioEngine:
                                        stderr=subprocess.PIPE, **kwargs)
             self.process = process
         try:
-            self.status(epoch, 'Aktif • mengenali melalui ShazamIO…')
+            self.status(epoch, 'On • identifying music with ShazamIO…')
             output, _ = process.communicate(payload, timeout=25)
             if (stop.is_set() or self.suppressed or epoch != self.epoch
                     or suppression_epoch != self.suppression_epoch):
                 return
             result = json.loads(output)
             if process.returncode or result.get('error'):
-                raise ValueError(result.get('error', 'Worker gagal'))
+                raise ValueError(result.get('error', 'Recognition worker failed'))
             if result.get('matched'):
                 if (not isinstance(result.get('title'), str) or not isinstance(result.get('artist'), str)
                         or type(result.get('offset')) not in (float, int)
                         or not math.isfinite(result['offset']) or not 0 <= result['offset'] <= 86400):
-                    raise ValueError('Hasil pengenalan tidak valid')
+                    raise ValueError('Invalid recognition result')
                 self.on_match(epoch, result, start)
-                self.status(epoch, 'Aktif • ditemukan; posisi audio berupa perkiraan')
+                self.status(epoch, 'On • track identified, position estimated')
             else:
-                self.status(epoch, 'Aktif • tidak ada kecocokan')
+                self.status(epoch, 'On • no match')
         except (ValueError, OSError, subprocess.TimeoutExpired) as error:
-            self.status(epoch, 'Aktif • pengenalan gagal: ' + type(error).__name__)
+            self.status(epoch, 'On • recognition failed: ' + type(error).__name__)
         finally:
             if process.poll() is None:
                 process.kill()
@@ -138,11 +138,11 @@ class AudioEngine:
             port = pa.PyAudio()
             device = port.get_default_wasapi_loopback()
             if not device.get('isLoopbackDevice'):
-                raise RuntimeError('Perangkat bukan WASAPI loopback; capture dibatalkan')
+                raise RuntimeError('Capture canceled: device does not support WASAPI loopback')
             rate = int(device['defaultSampleRate'])
             channels = int(device['maxInputChannels'])
             if not 1 <= channels <= 32 or not 8000 <= rate <= 192000:
-                raise RuntimeError('Format output tidak didukung')
+                raise RuntimeError('Unsupported output format')
             block = max(1, rate // 10)
             if stop.is_set():
                 return
@@ -161,7 +161,7 @@ class AudioEngine:
             stream = port.open(format=pa.paFloat32, channels=channels, rate=rate, input=True,
                                input_device_index=device['index'], frames_per_buffer=block,
                                stream_callback=callback)
-            self.status(epoch, 'Aktif • output: ' + device['name'])
+            self.status(epoch, 'On • output: ' + device['name'])
             chunks = []
             count = 0
             started = None
@@ -169,7 +169,7 @@ class AudioEngine:
             buffer_revision = self.suppression_epoch
             while not stop.is_set():
                 if overflow.is_set():
-                    raise RuntimeError('Audio overflow; aktifkan ulang untuk acuan waktu baru')
+                    raise RuntimeError('Audio buffer overflow. Restart audio recognition to reset timing')
                 try:
                     data, block_started = pending.get(timeout=0.2)
                 except queue.Empty:
@@ -189,11 +189,11 @@ class AudioEngine:
                     continue
                 if level < 0.001:
                     if started is None:
-                        self.status(epoch, 'Aktif • hening / menunggu audio output')
+                        self.status(epoch, 'On • silent, waiting for system audio')
                         continue
                 if started is None:
                     started = block_started
-                    self.status(epoch, 'Aktif • mengumpulkan cuplikan RAM (12 detik)')
+                    self.status(epoch, 'On • collecting a 12-second sample in memory')
                 chunks.append(samples)
                 count += len(samples)
                 if count >= rate * 12:
@@ -223,7 +223,7 @@ class AudioEngine:
                 recognition.join(timeout=28)
             with self.lock:
                 self.enabled = False
-                self.on_status(self.epoch, ('Mati • error: ' + failure) if failure and epoch == self.epoch else 'Mati')
+                self.on_status(self.epoch, ('Off • error: ' + failure) if failure and epoch == self.epoch else 'Off')
 
     def wait(self, timeout=30):
         if self.thread:

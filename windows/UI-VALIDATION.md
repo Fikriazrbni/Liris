@@ -4,10 +4,10 @@
 
 The listening page now uses a 172 DIP sidebar and no permanent settings column.
 Colors, font size, opacity, offset and click-through settings appear only on
-**Tampilan**. Decorative slogans and repeated overlay/import/version controls were
-removed from the listening page. **Lainnya** contains lyric version selection,
+**Appearance**. Decorative slogans and repeated overlay/import/version controls were
+removed from the listening page. **More** contains lyric version selection,
 refresh and import; the existing connection/disconnection callbacks share one
-Hubungkan/Putuskan button. Connection remains fixed above the scrolling lyric stage.
+Connect/Disconnect button. Connection remains fixed above the scrolling lyric stage.
 Default window size is 1100×740; the minimum is 840×600.
 
 Overlay now displays **previous / active / next** timed lyric rows. The active row

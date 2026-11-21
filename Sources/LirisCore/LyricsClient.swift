@@ -5,9 +5,9 @@ public enum LyricsClientError: LocalizedError {
     case invalidResponse, http(Int), throttled(TimeInterval)
     public var errorDescription: String? {
         switch self {
-        case .invalidResponse: "Respons layanan lirik tidak dikenali. Coba lagi sebentar."
-        case .http(let status): "Layanan lirik sedang bermasalah (HTTP \(status)). Coba lagi nanti."
-        case .throttled(let seconds): "Batas permintaan LRCLIB tercapai. Coba lagi dalam \(Int(ceil(seconds))) detik."
+        case .invalidResponse: "Unexpected response from the lyrics service. Try again shortly."
+        case .http(let status): "The lyrics service returned HTTP \(status). Try again later."
+        case .throttled(let seconds): "LRCLIB’s request limit was reached. Try again in \(Int(ceil(seconds))) seconds."
         }
     }
 }
@@ -98,7 +98,7 @@ public actor LyricsClient {
         if networkError != nil, let archive { candidates += archive.alternatives + [archive.record].compactMap { $0 } }
         var result = SyncAssessment.resolve(candidates, for: track, comparedVersions: compared, preferredID: choice?.id)
         if result.record == nil, let networkError { throw networkError }
-        if !compared, networkError != nil { result.reasons.append("Pemeriksaan online belum tersedia; lirik lokal tetap dapat dipakai.") }
+        if !compared, networkError != nil { result.reasons.append("Online checks are unavailable. You can still use the cached lyrics.") }
         // Keep a bounded set, always retaining the selected version.
         result.alternatives = Array(result.alternatives.prefix(32))
         if let selected = result.record, !result.alternatives.contains(where: { $0.id == selected.id }) { result.alternatives.append(selected) }

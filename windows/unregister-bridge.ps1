@@ -6,4 +6,4 @@ foreach ($browser in @('Google\Chrome', 'BraveSoftware\Brave-Browser', 'Microsof
 }
 $manifest = Join-Path $env:LOCALAPPDATA 'Liris\NativeMessaging\id.local.liris.bridge.json'
 if (Test-Path -LiteralPath $manifest) { Remove-Item -LiteralPath $manifest }
-Write-Output 'Registrasi host Liris dihapus. Extension dan cache tetap dapat dihapus secara terpisah.'
+Write-Output 'The Liris host has been unregistered. You can remove the browser extension and cache separately.'

@@ -23,9 +23,9 @@ def main():
         w.poll.stop()
         w.presentation_timer.stop()
         w.demo_badge.show()
-        track = dict(title='Ruang Senja', artist='Liris Studio', album='Sebuah demonstrasi', duration=50,
+        track = dict(title='Evening Room', artist='Liris Studio', album='Studio Demo', duration=50,
                      origin='demo', session='demo', trackID='demo', position=16, playing=False)
-        lyric = '[00:00]Biarkan dunia berputar sejenak\n[00:12]Kita dengarkan cerita yang sama\n[00:22]Setiap kata menemukan nadanya\n[00:35]Dan malam menyimpan cerita'
+        lyric = '[00:00]Let the world turn for a moment\n[00:12]We hear the same old story\n[00:22]Every word finds its note\n[00:35]In the room we call our own'
         c = dict(id=1, trackName=track['title'], artistName=track['artist'], duration=50, syncedLyrics=lyric)
         report = []
         for width, height in [(1220, 790), (940, 640)]:
@@ -41,24 +41,24 @@ def main():
                 w.clock.update(track)
                 w.current_line = 1
                 w.lyrics_list.setCurrentRow(1)
-                w.sync_status.setText('Démo visuel · lirik orisinal; kecocokan vokal tidak diuji.')
+                w.sync_status.setText('Visual demo · original lyrics. Vocal timing is untested.')
                 w.audio.enabled = state in ('active', 'starting', 'suppressed')
-                audio_text = {'active': 'Aktif • simulasi visual', 'starting': 'Mengaktifkan • simulasi visual',
-                              'stopping': 'Menghentikan • simulasi visual', 'suppressed': 'Aktif • ditahan karena extension bermain/iklan (simulasi)'}
-                w.audio_status(w.audio.epoch, audio_text.get(state, 'Mati'))
+                audio_text = {'active': 'On • visual simulation', 'starting': 'Starting • visual simulation',
+                              'stopping': 'Stopping • visual simulation', 'suppressed': 'On • recognition paused during browser playback or ads (simulation)'}
+                w.audio_status(w.audio.epoch, audio_text.get(state, 'Off'))
                 w.audio_enable.setEnabled(False)
                 if state == 'uncertain':
-                    w.sync_status.setText('⚠ Timing lirik perlu diperiksa. Beberapa versi berbeda; ketepatan terhadap vokal belum dapat dipastikan.')
+                    w.sync_status.setText('⚠ Check lyric timing. Versions disagree. Vocal timing is unverified.')
                 if state in ('empty', 'loading', 'error'):
                     w.track = None
                     w.set_lyrics(None)
-                    w.sync_status.setText({'empty': 'Belum ada lirik. Putar lagu lalu Hubungkan.', 'loading': 'Mencari lirik…', 'error': 'Jaringan tidak tersedia. Cari ulang atau impor LRC.'}[state])
+                    w.sync_status.setText({'empty': 'No lyrics yet. Play a track, then click Connect.', 'loading': 'Looking for lyrics…', 'error': 'Network unavailable. Try searching again or import an LRC file.'}[state])
                 page = {'appearance': 2, 'guide': 3, 'search': 1}.get(state, 0)
                 show_page(w, page)
                 if state == 'search':
                     w.candidates = [c]
                     w.populate_versions()
-                    w.query.setText('Ruang Senja · Liris Studio')
+                    w.query.setText('Evening Room · Liris Studio')
                 present(w)
                 app.processEvents()
                 QTest.qWait(30)
@@ -77,12 +77,12 @@ def main():
                 w.grab().save(str(folder / f'{width}-{state}.png'))
                 report.append({'size': [width, height], 'state': state, 'dpr': w.devicePixelRatioF(), 'primaryBounds': 'passed'})
             w.audio.enabled = True
-            w.audio_status(w.audio.epoch, 'Aktif • simulasi visual')
+            w.audio_status(w.audio.epoch, 'On • visual simulation')
             present(w)
-            w.overlay.previous_line.setText('Biarkan dunia berputar sejenak')
-            w.overlay.text.setText('Kita dengarkan cerita yang sama')
-            w.overlay.next_line.setText('Setiap kata menemukan nadanya')
-            w.overlay.title.setText('LIRIS / Ruang Senja · DEMO TANPA AUDIO')
+            w.overlay.previous_line.setText('Let the world turn for a moment')
+            w.overlay.text.setText('We hear the same old story')
+            w.overlay.next_line.setText('Every word finds its note')
+            w.overlay.title.setText('LIRIS / Evening Room · DEMO · NO AUDIO')
             w.overlay.resize(800, 230)
             w.overlay.show()
             app.processEvents()

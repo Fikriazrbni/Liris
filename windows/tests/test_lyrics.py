@@ -77,7 +77,7 @@ class LyricsTests(unittest.TestCase):
             with patch.object(client, 'request', side_effect=[candidate(), [candidate()]]):
                 chosen, _, status = client.resolve(packet(origin='audio', duration=0))
             self.assertIsNotNone(chosen)
-            self.assertIn('durasi/versi belum terverifikasi', status)
+            self.assertIn('duration and version unverified', status)
 
     def test_network_completion_preserves_offset_changed_during_fetch(self):
         with tempfile.TemporaryDirectory() as root:
@@ -104,7 +104,7 @@ class LyricsTests(unittest.TestCase):
                 chosen, _, status = client.resolve(packet())
             self.assertEqual(chosen['id'], 1)
             self.assertEqual([c.args[0] for c in request.call_args_list], ['/get', '/search'])
-            self.assertIn('pemeriksaan sebagian', status)
+            self.assertIn('partial check', status)
 
     def test_search_timeout_keeps_exact_and_does_not_mark_comparison_complete(self):
         with tempfile.TemporaryDirectory() as root:
@@ -114,7 +114,7 @@ class LyricsTests(unittest.TestCase):
                 chosen, _, status = client.resolve(packet())
             self.assertEqual(chosen['id'], 1)
             self.assertEqual(store.track(signature(packet()))['comparedAt'], 0)
-            self.assertIn('pemeriksaan sebagian', status)
+            self.assertIn('partial check', status)
 
     def test_exact_rate_limit_prevents_search_http_request(self):
         calls = []

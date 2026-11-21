@@ -171,7 +171,7 @@ class AudioBoundaryTests(unittest.TestCase):
             engine._capture(engine.epoch, threading.Event())
         fake.open.assert_not_called()
         self.assertFalse(engine.enabled)
-        self.assertIn('bukan WASAPI loopback', messages[-1])
+        self.assertIn('does not support WASAPI loopback', messages[-1])
 
     def test_idle_output_without_callbacks_still_stops_and_closes_stream(self):
         # Load NumPy before timing the capture thread's startup.

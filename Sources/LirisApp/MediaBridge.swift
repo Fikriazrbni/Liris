@@ -66,7 +66,7 @@ enum ScriptRunner {
             while process.isRunning {
                 if Task.isCancelled || Date() >= deadline {
                     process.terminate()
-                    throw BridgeError(message: "Koneksi ke aplikasi terlalu lama. Periksa dialog izin macOS, lalu hubungkan ulang.")
+                    throw BridgeError(message: "The connection to the app timed out. Check for a macOS permission prompt, then reconnect.")
                 }
                 try await Task.sleep(for: .milliseconds(80))
             }
@@ -75,12 +75,12 @@ enum ScriptRunner {
             guard process.terminationStatus == 0 else {
                 let details = String(decoding: error, as: UTF8.self)
                 if details.contains("-1743") || details.localizedCaseInsensitiveContains("not authorized") {
-                    throw BridgeError(message: "Izin Automation belum aktif. Buka System Settings → Privacy & Security → Automation, lalu izinkan Liris mengakses aplikasi musik/browser kamu.")
+                    throw BridgeError(message: "Allow Liris to control your music app or browser in System Settings → Privacy & Security → Automation.")
                 }
                 if details.localizedCaseInsensitiveContains("javascript") || details.contains("-1728") || details.contains("-10000") {
-                    throw BridgeError(message: "Aktifkan ‘Allow JavaScript from Apple Events’ di browser. Lihat Panduan koneksi, lalu klik Hubungkan lagi.")
+                    throw BridgeError(message: "Turn on Allow JavaScript from Apple Events in your browser. See Connection Guide, then click Connect again.")
                 }
-                throw BridgeError(message: "Belum dapat membaca pemutar. Pastikan aplikasi terbuka dan lagu sudah dimuat. \(details.prefix(220))")
+                throw BridgeError(message: "Couldn’t read the player. Open the app and load a song. \(details.prefix(220))")
             }
             return String(decoding: data, as: UTF8.self).trimmingCharacters(in: .whitespacesAndNewlines)
         }
@@ -108,7 +108,7 @@ enum MediaBridge {
             let result = try await ScriptRunner.run(browserScript(browser, javascript: javascript))
             if result.isEmpty { return nil }
             let parts = result.split(separator: "\n", maxSplits: 2, omittingEmptySubsequences: false)
-            guard parts.count == 3 else { throw BridgeError(message: "Respons browser tidak dikenali. Coba muat ulang YouTube Music.") }
+            guard parts.count == 3 else { throw BridgeError(message: "Unexpected browser response. Try reloading YouTube Music.") }
             var snapshot = try JSONDecoder().decode(TrackSnapshot.self, from: Data(parts[2].utf8))
             snapshot.windowID = Int(parts[0]); snapshot.tabIndex = Int(parts[1])
             return snapshot.available ? snapshot : nil
@@ -126,7 +126,7 @@ enum MediaBridge {
 
     private static func youtubeProbe() throws -> String {
         guard let url = Bundle.module.url(forResource: "youtube-music", withExtension: "js", subdirectory: "Resources") else {
-            throw BridgeError(message: "Skrip YouTube Music tidak ditemukan. Bangun ulang aplikasi.")
+            throw BridgeError(message: "The YouTube Music script is missing. Rebuild the app.")
         }
         return try String(contentsOf: url, encoding: .utf8)
     }
@@ -205,9 +205,9 @@ enum MediaBridge {
             """
             let response = try await ScriptRunner.run(browserScript(browser, javascript: js, target: track))
             if response == "seek-in-browser" {
-                throw BridgeError(message: "Untuk lagu ini, pindahkan posisi langsung di YouTube Music agar sinkronisasi tetap akurat.")
+                throw BridgeError(message: "For this track, change the playback position in YouTube Music to keep the lyrics in sync.")
             }
-            guard response == "ok" else { throw BridgeError(message: "Tab atau lagu berubah. Tunggu koneksi diperbarui, lalu coba lagi.") }
+            guard response == "ok" else { throw BridgeError(message: "The tab or track has changed. Wait for the connection to update, then try again.") }
         } else {
             let operation = position.map { "set player position to \(max(0, $0))" } ?? "playpause"
             _ = try await ScriptRunner.run("with timeout of 10 seconds\ntell application id \"\(source.bundleID!)\" to \(operation)\nend timeout")

@@ -1,59 +1,59 @@
-# Rancangan Liris
+# Liris architecture
 
-## Alur data
+## Player data flow
 
 ```mermaid
 flowchart LR
-    Y[YouTube Music di browser] -->|Apple Events + metadata dan video.currentTime| M[MediaBridge]
+    Y[YouTube Music in the browser] -->|Apple Events, metadata and video.currentTime| M[MediaBridge]
     S[Spotify / Apple Music] -->|Apple Events| M
-    M --> A[AppModel dan jam monotonic]
+    M --> A[AppModel and monotonic clock]
     A --> C[LyricsClient]
-    C --> D[Cache lokal]
+    C --> D[Local cache]
     C -->|HTTPS| L[LRCLIB]
     C --> P[LRCParser]
     P --> A
-    A --> U[SwiftUI: pemutar dan pencarian]
-    A --> O[AppKit NSPanel: overlay]
+    A --> U[SwiftUI player and search]
+    A --> O[AppKit NSPanel overlay]
 ```
 
-## Komponen
+## Components
 
-| Komponen | Tanggung jawab |
+| Component | Responsibility |
 | --- | --- |
-| `LirisCore/Lyrics.swift` | Model lirik, parser LRC, lookup baris dengan binary search, matching konservatif |
-| `LirisCore/LyricsClient.swift` | URLSession dalam actor, validasi HTTP/MIME, cooldown, cache memori/disk |
-| `LirisCore/PlaybackClock.swift` | Interpolasi monotonic, snapshot integer, pause/seek, playback rate, batas saat pemutar macet |
-| `LirisCore/PlayerTimeMonitor.swift` | Validasi dan pemantauan temporal beberapa sumber waktu, stall, pemulihan, hysteresis |
-| `LirisCore/SyncAssessment.swift` | Signature lagu, penilaian metadata/versi, perbandingan timing, status ketidakpastian |
-| `LirisApp/MediaBridge.swift` | Skrip tetap untuk browser/aplikasi, subprocess tanpa shell, timeout/cancellation |
-| `LirisApp/Resources/youtube-music.js` | Snapshot DOM dan mediaSession; tidak mengunggah audio |
-| `LirisApp/AppModel.swift` | State UI, polling serial, pembatalan task, generasi request, acuan waktu pemutaran |
-| `LirisApp/ContentView.swift` | Ruang dengar, kartu lagu, scroll lirik, kontrol playback |
-| `LirisApp/DetailViews.swift` | Pencarian, pengaturan tampilan, sinkronisasi, panduan izin |
-| `LirisApp/OverlayController.swift` | NSPanel floating di Spaces/fullscreen, posisi persisten, klik menembus |
+| `LirisCore/Lyrics.swift` | Lyric model, LRC parsing, binary search for the active line, conservative track matching |
+| `LirisCore/LyricsClient.swift` | URLSession requests within an actor, HTTP and MIME validation, cooldown, memory and disk caches |
+| `LirisCore/PlaybackClock.swift` | Monotonic interpolation, whole-second snapshots, pause and seek handling, playback rate, limits when the player stalls |
+| `LirisCore/PlayerTimeMonitor.swift` | Validation of multiple time sources across samples, stall detection, recovery, and hysteresis |
+| `LirisCore/SyncAssessment.swift` | Track signature, metadata and version checks, candidate timing comparison, uncertainty reporting |
+| `LirisApp/MediaBridge.swift` | Fixed scripts for browsers and desktop players, subprocesses launched without a shell, timeouts and cancellation |
+| `LirisApp/Resources/youtube-music.js` | DOM and MediaSession snapshots without audio upload |
+| `LirisApp/AppModel.swift` | UI state, serial polling, task cancellation, request generations, playback time reference |
+| `LirisApp/ContentView.swift` | Now Playing, track card, scrolling lyrics, playback controls |
+| `LirisApp/DetailViews.swift` | Search, appearance settings, sync controls, permissions guide |
+| `LirisApp/OverlayController.swift` | Floating NSPanel across Spaces and full-screen apps, saved window position, click-through mode |
 
-## Sinkronisasi
+## Synchronization
 
-Posisi pemutar diambil setiap sekitar satu detik; UI diperbarui 10 kali per detik berdasarkan selisih `systemUptime`. Snapshot pause menghentikan interpolasi, sedangkan snapshot seek mengganti posisi acuannya. Tidak ada penambahan durasi secara kumulatif berdasarkan jumlah tick. Timestamp aktif adalah baris terakhir dengan `time <= position + adjustment`. Adjustment positif memajukan lirik. Baris kosong tetap dipertahankan agar jeda instrumental tidak menampilkan bait sebelumnya terus-menerus.
+Liris reads the player position about once a second. The UI updates ten times a second using elapsed `systemUptime`. A paused snapshot stops interpolation. A seek replaces the reference position. The clock derives elapsed time from the reference instead of accumulating a duration per tick. The active line is the last one with `time <= position + adjustment`. A positive adjustment displays lyrics earlier. Empty lines clear the previous lyric during instrumental breaks.
 
-Mulai 0.1.2, posisi video dibandingkan dengan progress bar YouTube Music. Selisih di atas 1,25 detik memicu fallback ke angka progress bar; jam media dengan presisi subdetik tetap dipakai bila keduanya cocok. MediaSession menjadi acuan status play/pause. Fallback progress bar memakai jeda polling 250 ms setelah setiap permintaan selesai, dengan overhead Apple Events di luar jeda itu. Snapshot integer yang belum berubah tidak mengatur ulang anchor; interpolasi dibatasi satu detik di depan angka terakhir agar buffering atau progress bar macet tidak membuat lirik terus maju. Pergantian sumber waktu, pause/resume, seek, atau playback rate mengatur ulang anchor.
+Since 0.1.2, Liris compares the video position with the YouTube Music progress bar. A difference over 1.25 seconds triggers a fallback to the progress bar. When the two agree, the higher-resolution media time takes precedence. MediaSession supplies the play/pause state. When using the progress bar, the app waits 250 ms after each completed poll. Apple Events add their own latency. Repeated whole-second readings leave the reference position in place. Interpolation stops one second beyond the last reading so that lyrics do not keep advancing during buffering or a stall. Switching time sources, pausing, resuming, seeking, or changing playback rate resets the reference.
 
-Pergantian sumber atau lagu membatalkan pencarian lama. Token generasi mencegah hasil jaringan lama mengganti lirik lagu baru. Pilihan lirik manual dan impor membatalkan pencarian otomatis yang masih berjalan, lalu mengikuti posisi pemutar yang sama. Setelah lagu berubah, lirik kembali dicari untuk lagu baru. Error izin menghentikan polling sampai pengguna menghubungkan ulang.
+Switching source or track cancels an outstanding lyric search. A generation token prevents an old network response from replacing the new track's lyrics. Selecting or importing lyrics also cancels an automatic search and keeps the selection on the current player timeline. The next track triggers a new search. Permission errors stop polling until the user reconnects.
 
-## Pemeriksaan otomatis 0.2.0
+## Automatic checks in 0.2.0
 
-PlayerTimeMonitor menyimpan perkembangan angka media/progress/clock lintas sampel. Media yang tidak bergerak selama lebih dari 2,5 detik saat status playing dianggap macet; progress yang tidak berubah lebih dari tiga detik dapat digantikan media yang masih bergerak. Posisi negatif, non-finite, atau di luar durasi ditolak. Konflik UI tanpa acuan yang sejalan menahan lirik; kemajuan sumber memulihkannya otomatis. Media harus cocok dengan UI selama tiga sampel sebelum diambil kembali setelah fallback.
+`PlayerTimeMonitor` tracks changes across media time, the progress bar and the visible clock. Media time is considered stalled if it stays still for more than 2.5 seconds while playback is active. If the progress bar is stationary for more than three seconds, advancing media time can take over. The monitor rejects negative, non-finite and out-of-range positions. When the UI clocks conflict and no other reference agrees, lyrics pause. They resume when a source recovers. After a fallback, media time must agree with the UI for three samples before it takes over again.
 
-LyricsClient.resolve menggabungkan hasil exact, kandidat pencarian, dan pilihan lokal. SyncAssessment menolak metadata atau versi yang bertentangan, durasi berbeda lebih dari lima detik, isi kosong/rusak, dan timestamp melewati akhir lagu. Kandidat plausible diranking berdasarkan lirik bertimestamp, kecocokan album, dan kedekatan durasi. Empat atau lebih baris unik yang sama dengan median perbedaan waktu lebih dari dua detik menandakan konflik timing. Konflik menghasilkan status uncertain, tidak memicu retiming atau klaim akurasi vokal. ID/kopi lirik bukan suara independen untuk voting.
+`LyricsClient.resolve` combines exact results, search candidates and saved choices. `SyncAssessment` rejects conflicting metadata or versions, duration differences over five seconds, empty or malformed content, and timestamps beyond the end of the track. It ranks plausible candidates by timestamp availability, album match and duration. Four or more matching unique lines with a median timing difference over two seconds indicate a conflict. The result is marked uncertain. The app does not retime lyrics automatically or treat this comparison as a measurement of vocal accuracy. Duplicate lyrics or record IDs do not count as independent votes.
 
-Arsip pemeriksaan versi memiliki format terpisah `assessment-v1`, TTL tujuh hari, validasi ulang metadata setiap dibaca, dan batas kandidat 32. Pilihan lokal `choice` dipertahankan hanya jika lolos pemeriksaan struktural. Hasil pencarian dalam actor memiliki memo sepuluh menit agar fallback exact dan perbandingan tidak menggandakan permintaan. Force refresh melewati arsip/hasil pencarian memo, dan hasil baru untuk ID sama mengungguli data lama. Jika internet gagal, kandidat lokal yang cocok tetap disajikan dengan ketidakpastian yang jelas.
+Version assessments use a separate `assessment-v1` archive, expire after seven days, and hold up to 32 candidates. The app rechecks the metadata on every read. It retains a saved `choice` only when it passes structural checks. The actor keeps search results in memory for ten minutes so exact-match fallback and version comparison can reuse a request. A forced refresh bypasses both caches, and a fresh result supersedes an older one with the same ID. If the network fails, Liris can show a suitable local candidate and identify the uncertainty.
 
-Pilihan versi dan offset diikat ke signature judul/artis/album/durasi, bukan URL tab yang berubah. Pengguna dapat menghapus pilihan otomatis; impor/pilihan eksplisit yang tidak cocok tetap terlihat dengan peringatan dan tidak dipromosikan menjadi preferensi aman. Tidak ada analisis vokal atau pengiriman koreksi pengguna ke server.
+Version choices and offsets use the track's title, artist, album and duration as their key, independent of changes to the tab URL. Users can clear a saved choice to restore automatic selection. An explicit selection or imported file with conflicting metadata remains visible with a warning and is excluded from automatic preferences. Liris neither analyzes vocals for this comparison nor sends user timing corrections to a server.
 
-## Pilihan platform
+## Platform choices
 
-Target macOS 14+, Swift Package Manager, tanpa dependensi pihak ketiga. AppKit dipakai untuk perilaku overlay yang spesifik desktop; SwiftUI untuk antarmuka. Tidak memakai API privat MediaRemote. Untuk YouTube Music, integrasi browser dipilih agar tidak perlu login Google di embedded webview dan musik tetap berada di browser pengguna. Konsekuensinya, pengguna harus mengaktifkan izin JavaScript Apple Events satu kali.
+The original native player integration targets macOS 14+ and uses Swift Package Manager without third-party Swift dependencies. AppKit supplies desktop overlay behavior and SwiftUI supplies the interface. The integration uses public APIs and avoids the private MediaRemote API. YouTube Music runs in the user's browser, which avoids a separate Google sign-in inside an embedded web view. The direct Apple Events integration requires one-time permission to run JavaScript in that browser. The extension-based Auto source is documented in the [Auto setup guide](AUTO-SETUP.md).
 
-Pengenalan audio dengan ShazamKit memerlukan konfigurasi App ID/service di Apple Developer serta akses audio sistem. Fitur itu tidak dimasukkan ke versi lokal ini. [Dokumentasi ShazamKit Apple](https://developer.apple.com/help/account/services/shazamkit).
+ShazamKit requires an Apple Developer App ID and service configuration as well as system audio access. The original local build omitted that integration. Later releases use ShazamIO for audio recognition. [Apple's ShazamKit documentation](https://developer.apple.com/help/account/services/shazamkit)
 
-Build lokal ditandatangani ad hoc dengan entitlement Automation. Distribusi Developer ID, notarization, updater, serta pengujian lintas versi macOS perlu dilakukan sebelum rilis publik.
+Local builds use ad hoc signing with the Automation entitlement. The original distribution plan called for Developer ID signing, notarization, an updater, and testing across macOS versions before a public release.

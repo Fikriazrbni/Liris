@@ -30,8 +30,8 @@ final class AudioRecognition: NSObject, SCStreamOutput, SCStreamDelegate, AudioC
     func reportStartFailure(_ error: Error) {
         let details = error.localizedDescription
         if details.localizedCaseInsensitiveContains("TCC") || details.localizedCaseInsensitiveContains("declined") || details.localizedCaseInsensitiveContains("permission") {
-            setStatus("macOS menolak izin capture Liris. Buka Privacy & Security → Screen & System Audio Recording, izinkan Liris, lalu aktifkan audio lagi.")
-        } else { setStatus("Audio belum aktif: " + details) }
+            setStatus("macOS denied audio capture permission. In Privacy & Security → Screen & System Audio Recording, allow Liris, then enable audio again.")
+        } else { setStatus("Audio could not start: " + details) }
     }
     var diagnostics: [String: Any] {
         lock.withLock { ["running": running, "starting": starting, "stopping": stopping, "suppressed": suppressed,
@@ -42,13 +42,13 @@ final class AudioRecognition: NSObject, SCStreamOutput, SCStreamDelegate, AudioC
     }
     var progressStatus: String {
         lock.withLock {
-            guard running else { return message.isEmpty ? "Audio belum diaktifkan. Tekan Aktifkan pengenalan audio sistem." : message }
-            if suppressed { return "Audio ditahan karena tab YouTube / YouTube Music sedang bermain." }
-            if callbacks == 0 || Date().timeIntervalSince(lastCallback) > 3 { return "Capture aktif tetapi belum menerima audio. Periksa izin dan output audio macOS." }
-            if pending { return "ShazamIO sedang mengenali cuplikan…" }
+            guard running else { return message.isEmpty ? "Audio recognition is off. Choose Enable Audio to start it." : message }
+            if suppressed { return "Audio recognition is paused while YouTube or YouTube Music plays through the extension." }
+            if callbacks == 0 || Date().timeIntervalSince(lastCallback) > 3 { return "Capture is on but no audio is coming in. Check your macOS permissions and audio output." }
+            if pending { return "ShazamIO is identifying the sample…" }
             if lastOutcome == "error" || lastOutcome == "no-match" { return message }
-            if Date().timeIntervalSince(lastAudible) > 1.5 { return "Audio masuk tetapi hening/terlalu pelan; menunggu musik." }
-            return String(format: "Mengumpulkan cuplikan audio: %.1f / 12 detik", Double(pcm.count) / 88200)
+            if Date().timeIntervalSince(lastAudible) > 1.5 { return "The audio is silent or too quiet to identify. Waiting for music." }
+            return String(format: "Sampling audio: %.1f / 12 seconds", Double(pcm.count) / 88200)
         }
     }
     private let queue = DispatchQueue(label: "id.local.liris.audio")
@@ -77,7 +77,7 @@ final class AudioRecognition: NSObject, SCStreamOutput, SCStreamDelegate, AudioC
     }
     private func setStatus(_ value: String) { lock.lock(); message = value; lock.unlock() }
     @MainActor func start() async throws {
-        guard configured || diagnosticOnly else { throw BridgeError(message: "Runtime ShazamIO belum tersedia. Jalankan scripts/setup-shazamio.sh lalu build ulang aplikasi.") }
+        guard configured || diagnosticOnly else { throw BridgeError(message: "The ShazamIO runtime is missing. Run scripts/setup-shazamio.sh and rebuild the app.") }
         let token = lock.withLock { () -> UUID? in
             guard !starting && !running && !stopping else { return nil }; starting = true; epoch = UUID(); callbacks = 0; convertedFrames = 0; attempts = 0; lastOutcome = "collecting"; pcm.removeAll(); match = nil; return epoch
         }
@@ -86,7 +86,7 @@ final class AudioRecognition: NSObject, SCStreamOutput, SCStreamDelegate, AudioC
         guard stream == nil else { return }
         let content = try await SCShareableContent.excludingDesktopWindows(false, onScreenWindowsOnly: true)
         guard lock.withLock({ epoch == token }), !Task.isCancelled else { return }
-        guard let display = content.displays.first else { throw BridgeError(message: "Output audio sistem tidak tersedia.") }
+        guard let display = content.displays.first else { throw BridgeError(message: "System audio output is unavailable.") }
         let filter = SCContentFilter(display: display, excludingApplications: [], exceptingWindows: [])
         let configuration = SCStreamConfiguration()
         configuration.capturesAudio = true; configuration.excludesCurrentProcessAudio = true
@@ -99,7 +99,7 @@ final class AudioRecognition: NSObject, SCStreamOutput, SCStreamDelegate, AudioC
         try await capture.startCapture()
         guard lock.withLock({ epoch == token }) else { try? await capture.stopCapture(); return }
         lock.withLock { stream = capture; running = true }
-        setStatus("Mendengarkan audio sistem untuk mengenali lagu…")
+        setStatus("Listening to system audio to identify the song…")
     }
     func stop() {
         let values = lock.withLock { () -> (SCStream?, Process?) in
@@ -113,7 +113,7 @@ final class AudioRecognition: NSObject, SCStreamOutput, SCStreamDelegate, AudioC
     }
     func stream(_ stream: SCStream, didStopWithError error: Error) {
         guard lock.withLock({ self.stream === stream }) else { return }
-        stop(); setStatus("Audio sistem berhenti: " + error.localizedDescription)
+        stop(); setStatus("System audio capture stopped: " + error.localizedDescription)
     }
     func stream(_ stream: SCStream, didOutputSampleBuffer sampleBuffer: CMSampleBuffer, of type: SCStreamOutputType) {
         guard type == .audio else { return }
@@ -199,7 +199,7 @@ final class AudioRecognition: NSObject, SCStreamOutput, SCStreamDelegate, AudioC
                 let deadline = ProcessInfo.processInfo.systemUptime + 23
                 while process.isRunning {
                     guard lock.withLock({ running && !suppressed && epoch == token }), ProcessInfo.processInfo.systemUptime < deadline else {
-                        process.terminate(); throw BridgeError(message: "Pengenalan audio dibatalkan atau timeout.")
+                        process.terminate(); throw BridgeError(message: "Audio recognition was canceled or timed out.")
                     }
                     try await Task.sleep(for: .milliseconds(100))
                 }
@@ -210,16 +210,16 @@ final class AudioRecognition: NSObject, SCStreamOutput, SCStreamDelegate, AudioC
                     if process.terminationStatus == 0, response.matched, let title = response.title, let artist = response.artist,
                        let offset = response.offset, offset.isFinite, offset >= 0, offset <= 86400 {
                         match = (title, artist, offset, start, ProcessInfo.processInfo.systemUptime)
-                        lastOutcome = "matched"; message = "Lagu dikenali lewat ShazamIO"
+                        lastOutcome = "matched"; message = "Track identified by ShazamIO"
                     } else {
                         lastOutcome = response.error == nil ? "no-match" : "error"
-                        message = response.error == nil ? "Belum mengenali lagu; mencoba cuplikan berikutnya…" : "ShazamIO gagal (\(response.error ?? "unknown")). Akan mencoba lagi."
+                        message = response.error == nil ? "No match yet. Listening for the next sample…" : "ShazamIO failed (\(response.error ?? "unknown")). Trying again."
                         nextAttempt = ProcessInfo.processInfo.systemUptime + 5
                     }
                 }
             } catch {
                 lock.withLock {
-                    if epoch == token && running { lastOutcome = "error"; message = "Pengenalan audio: " + error.localizedDescription; nextAttempt = ProcessInfo.processInfo.systemUptime + 5 }
+                    if epoch == token && running { lastOutcome = "error"; message = "Audio recognition: " + error.localizedDescription; nextAttempt = ProcessInfo.processInfo.systemUptime + 5 }
                 }
             }
         }

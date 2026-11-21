@@ -23,7 +23,7 @@ private let shifted = "[00:16]Unique opening verse\n[00:26]Another complete sent
         let result = SyncAssessment.resolve([compilation, studio], for: track, comparedVersions: true)
         #expect(result.record?.id == 20)
         #expect(result.confidence == .uncertain)
-        #expect(result.reasons.contains { $0.contains("timing berbeda") })
+        #expect(result.reasons.contains { $0.contains("different timing") })
     }
 
     @Test func copiesDoNotCreateFalseTimingConflicts() {

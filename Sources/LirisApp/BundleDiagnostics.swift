@@ -84,6 +84,10 @@ enum BundleDiagnostics {
         let model = AppModel()
         model.startDemo(); model.togglePlayback()
         let arguments = ProcessInfo.processInfo.arguments
+        if let index = arguments.firstIndex(of: "--preview-time"), arguments.indices.contains(index + 1),
+           let seconds = Double(arguments[index + 1]), seconds.isFinite {
+            model.seek(seconds)
+        }
         var state = "demo"
         if let index = arguments.firstIndex(of: "--preview-state"), arguments.indices.contains(index + 1) { state = arguments[index + 1] }
         if state == "empty" { model.disconnect(clear: true) }
@@ -95,13 +99,13 @@ enum BundleDiagnostics {
         if ["uncertain", "recovered", "waiting"].contains(state), let record = model.record {
             model.demo = false; model.connected = true
             let other = LyricsRecord(id: -3, trackName: record.trackName, artistName: record.artistName,
-                albumName: "Alternatif demo", duration: record.duration, syncedLyrics: record.syncedLyrics)
+                albumName: "Demo alternate", duration: record.duration, syncedLyrics: record.syncedLyrics)
             model.lyricsResolution = LyricsResolution(record: record, alternatives: [record, other],
                 confidence: state == "uncertain" ? .uncertain : .compatible,
-                reasons: state == "uncertain" ? ["Beberapa versi memiliki timing berbeda. Ketepatan terhadap vokal belum dapat dipastikan."] : [], comparedVersions: true)
+                reasons: state == "uncertain" ? ["Available versions have different timing. Alignment with the vocals is uncertain."] : [], comparedVersions: true)
             if state != "uncertain" {
                 model.playerTimeHealth = state == "waiting" ? .waiting : .recovered
-                model.playerTimeMessage = state == "waiting" ? "Waktu pemutar belum dapat dipercaya. Lirik dijeda sampai waktu pulih." : "Waktu tidak sejalan; otomatis mengikuti progress pemutar."
+                model.playerTimeMessage = state == "waiting" ? "The player clock is unreliable. Lyrics will resume when timing recovers." : "Player clocks disagree. Following the progress bar."
             }
         }
         let isOverlay = state == "overlay" || state == "overlay-audio"

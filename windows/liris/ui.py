@@ -39,16 +39,16 @@ class Overlay(QWidget):
         self.resize(800, 230)
         self.setMinimumSize(460, 210)
         layout = QVBoxLayout(self)
-        self.indicator = QLabel('Audio Mati')
-        self.text = QLabel('Liris\nMenunggu lirik')
+        self.indicator = QLabel('Audio Off')
+        self.text = QLabel('Liris\nWaiting for lyrics')
         self.text.setAlignment(Qt.AlignmentFlag.AlignCenter)
         self.text.setWordWrap(True)
         self.previous_line = QLabel('')
         self.previous_line.setAlignment(Qt.AlignmentFlag.AlignCenter)
         self.previous_line.setWordWrap(True)
-        self.stop = QPushButton('Matikan audio')
+        self.stop = QPushButton('Stop Audio')
         self.stop.clicked.connect(owner.stop_audio)
-        self.title = QLabel('LIRIS / Menunggu pemutar')
+        self.title = QLabel('LIRIS / Waiting for the player')
         self.title.setWordWrap(True)
         self.next_line = QLabel('')
         self.next_line.setAlignment(Qt.AlignmentFlag.AlignCenter)
@@ -129,7 +129,7 @@ class MainWindow(QMainWindow):
         self.audio_deadline = 0
         self.audio_packet = None
         self.last_sound = 0
-        self.audio_state = 'Mati'
+        self.audio_state = 'Off'
         self.closing = False
         self.events.result.connect(self.got_result)
         self.events.status.connect(self.audio_status)
@@ -157,12 +157,12 @@ class MainWindow(QMainWindow):
 
     def build_tray(self):
         self.tray = QSystemTrayIcon(self)
-        self.tray.setToolTip('Liris • Audio Mati')
+        self.tray.setToolTip('Liris • Audio Off')
         self.tray.setIcon(self.tray_icon(False))
         menu = QMenu()
-        for title, callback in [('Buka Liris', self.showNormal), ('Overlay tampil/sembunyi', self.toggle_overlay),
-                                ('Buka kunci overlay', lambda: self.overlay.set_locked(False)),
-                                ('Matikan audio', self.stop_audio), ('Keluar', self.quit)]:
+        for title, callback in [('Open Liris', self.showNormal), ('Show or Hide Overlay', self.toggle_overlay),
+                                ('Unlock Overlay', lambda: self.overlay.set_locked(False)),
+                                ('Stop Audio', self.stop_audio), ('Quit', self.quit)]:
             action = menu.addAction(title)
             action.triggered.connect(callback)
         self.tray.setContextMenu(menu)
@@ -176,14 +176,14 @@ class MainWindow(QMainWindow):
         self.stop_audio()
         self.clear_track()
         self.connected = True
-        self.connection_status.setText('Menunggu extension')
+        self.connection_status.setText('Waiting for the extension')
         self.audio_enable.setEnabled(not (self.audio.thread and self.audio.thread.is_alive()))
 
     def disconnect_player(self):
         self.connected = False
         self.stop_audio()
         self.clear_track()
-        self.connection_status.setText('Terputus')
+        self.connection_status.setText('Disconnected')
         self.audio_enable.setEnabled(False)
 
     def clear_track(self):
@@ -194,31 +194,31 @@ class MainWindow(QMainWindow):
         self.candidates = []
         self.versions.clear()
         self.set_lyrics(None)
-        self.song.setText('Menunggu pemutar')
-        self.source.setText('YouTube / YouTube Music melalui extension. Audio sistem bersifat opsional.')
-        self.sync_status.setText('Belum ada lirik')
+        self.song.setText('Waiting for the player')
+        self.source.setText('YouTube and YouTube Music use the browser extension. System audio recognition is optional.')
+        self.sync_status.setText('No lyrics yet')
         self.position.setText('0:00')
 
     def setup_extension(self):
         try:
             if not getattr(sys, 'frozen', False):
-                raise ValueError('Setup memakai LirisBridge.exe dari paket. Bangun paket terlebih dahulu; lihat windows/README.md.')
+                raise ValueError('Setup needs the packaged LirisBridge.exe. Build the Windows package first (see windows/README.md).')
             folder = Path(sys._MEIPASS) / 'Extension'
             register(Path(sys.executable).parent / 'LirisBridge.exe', folder)
             QDesktopServices.openUrl(QUrl.fromLocalFile(str(folder)))
-            QMessageBox.information(self, 'Extension', 'Host terdaftar untuk Chrome, Brave, dan Edge pada akun Windows ini.\n'
-                                    'Buka halaman Extensions browser → Developer mode → Load unpacked → pilih folder Extension yang dibuka.\n'
-                                    'Reload tab YouTube lalu Hubungkan. Jika paket dipindah, jalankan setup lagi.')
+            QMessageBox.information(self, 'Extension', 'The host is registered for Chrome, Brave, and Edge on this Windows account.\n'
+                                    'On the browser’s Extensions page, enable Developer mode, click Load unpacked, and choose the Extension folder that just opened.\n'
+                                    'Reload the YouTube tab and click Connect in Liris. Run setup again if you move the app.')
         except (OSError, ValueError) as error:
-            QMessageBox.warning(self, 'Setup extension', str(error))
+            QMessageBox.warning(self, 'Set Up Extension', str(error))
 
     def enable_audio(self):
         if not self.connected:
             return
-        answer = QMessageBox.question(self, 'Aktifkan pengenalan output sistem?',
-                                      'Cuplikan 12 detik hanya di RAM. Signature dikirim ke layanan Shazam melalui ShazamIO.\n'
-                                      'Output percakapan Discord/aplikasi lain dapat ikut dianalisis. Mikrofon tidak dibuka.\n'
-                                      'Aktifkan untuk koneksi ini?', QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No,
+        answer = QMessageBox.question(self, 'Enable system audio recognition?',
+                                      'Liris holds each 12-second sample in memory and sends its audio fingerprint to Shazam through ShazamIO.\n'
+                                      'Audio from Discord calls or other apps may also be analyzed. Your microphone stays off.\n'
+                                      'Enable audio recognition for this connection?', QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No,
                                       QMessageBox.StandardButton.No)
         if answer == QMessageBox.StandardButton.Yes:
             self.audio.start_manual()
@@ -234,7 +234,7 @@ class MainWindow(QMainWindow):
         if epoch != self.audio.epoch:
             return
         self.audio_state = status
-        active = self.audio.enabled or status.startswith('Menghentikan')
+        active = self.audio.enabled or status.startswith('Stopping')
         label = '● Audio ' + status
         self.audio_indicator.setText(label)
         self.audio_indicator.setStyleSheet('color: ' + ('#ffb067' if active else '#a1b1a8'))
@@ -282,22 +282,22 @@ class MainWindow(QMainWindow):
                     if self.track:
                         self.clear_track()
                     self.packet = p
-                    self.connection_status.setText('Iklan • lirik ditahan')
+                    self.connection_status.setText('Ad playing • lyrics paused')
                     self.play.setEnabled(False)
                     return
                 if p['playing']:
                     self.audio_deadline = 0
                     self.audio_packet = None
-                self.connection_status.setText('Extension terhubung')
+                self.connection_status.setText('Extension connected')
                 self.use_track(p)
                 self.clock.update(p)
-                self.source.setText(p['origin'] + ' • waktu pemutar • status pause/seek mengikuti heartbeat')
+                self.source.setText(p['origin'] + ' • player time • playback updates from the browser')
             elif self.audio_packet and time.monotonic() < self.audio_deadline:
-                self.connection_status.setText('Pengenalan audio')
+                self.connection_status.setText('Audio recognition')
                 self.use_track(self.audio_packet)
-                self.source.setText('ShazamIO • posisi perkiraan; pause/seek/pergantian lagu belum terverifikasi sampai pengenalan berikutnya')
+                self.source.setText('ShazamIO • estimated position. Pauses, seeks, and track changes are unverified until the next match.')
             else:
-                self.connection_status.setText('Menunggu extension / audio')
+                self.connection_status.setText('Waiting for the extension or system audio')
                 if self.track:
                     self.clear_track()
         position = self.clock.value()
@@ -309,7 +309,7 @@ class MainWindow(QMainWindow):
             if index >= 0:
                 from liris.presentation import scroll_active
                 scroll_active(self, index)
-            self.overlay.text.setText(self.lines[index].text if index >= 0 else ('Menunggu lirik' if not self.lines else '♪'))
+            self.overlay.text.setText(self.lines[index].text if index >= 0 else ('Waiting for lyrics' if not self.lines else '♪'))
         self.play.setEnabled(bool(self.packet))
 
     def use_track(self, packet):
@@ -328,7 +328,7 @@ class MainWindow(QMainWindow):
         self.set_lyrics(None)
         self.candidates = []
         self.versions.clear()
-        self.sync_status.setText('Mencari lirik…')
+        self.sync_status.setText('Looking for lyrics…')
         self.submit('resolve', lambda track=packet.copy(): self.client.resolve(track))
 
     def submit(self, kind, operation):
@@ -346,7 +346,7 @@ class MainWindow(QMainWindow):
         if generation != self.generation:
             return
         if isinstance(result, Exception):
-            self.sync_status.setText('Gagal: ' + str(result))
+            self.sync_status.setText('Error: ' + str(result))
             return
         if kind == 'resolve':
             chosen, candidates, status = result
@@ -357,12 +357,12 @@ class MainWindow(QMainWindow):
         else:
             self.candidates = result
             self.populate_versions()
-            self.sync_status.setText(f'{len(result)} versi ditemukan. Pilih versi untuk melihat lirik.')
+            self.sync_status.setText(f'Versions found: {len(result)}. Choose one to see its lyrics.')
 
     def populate_versions(self):
         self.versions.clear()
         for c in self.candidates:
-            reasons = assess(c, self.track) if self.track else ['belum ada pemutar']
+            reasons = assess(c, self.track) if self.track else ['no player available']
             text = f"{c.get('trackName')} — {c.get('artistName')} / {c.get('albumName', '')} / {c.get('duration', '?')}s"
             if reasons:
                 text += ' ⚠ ' + ', '.join(reasons)
@@ -375,7 +375,7 @@ class MainWindow(QMainWindow):
         if self.lines:
             self.lyrics_list.addItems([line.text or '♪' for line in self.lines])
         else:
-            text = (candidate or {}).get('plainLyrics') or 'Lirik akan muncul di sini.'
+            text = (candidate or {}).get('plainLyrics') or 'Lyrics will appear here.'
             self.lyrics_list.addItems(text.splitlines())
 
     def search(self):
@@ -383,7 +383,7 @@ class MainWindow(QMainWindow):
         if not query:
             return
         self.generation += 1
-        self.sync_status.setText('Mencari di LRCLIB…')
+        self.sync_status.setText('Searching LRCLIB…')
         self.submit('search', lambda: self.client.search(query))
 
     def choose_version(self):
@@ -392,8 +392,8 @@ class MainWindow(QMainWindow):
             return
         self.generation += 1
         self.set_lyrics(c)
-        reasons = assess(c, self.track) if self.track else ['pemutar belum terhubung']
-        self.sync_status.setText('Pilihan manual • ' + (', '.join(reasons) if reasons else 'metadata/durasi cocok; kecocokan vokal belum terbukti'))
+        reasons = assess(c, self.track) if self.track else ['player disconnected']
+        self.sync_status.setText('Manual selection • ' + (', '.join(reasons) if reasons else 'metadata and duration match. Vocal timing is unverified'))
         if self.track_key and not reasons:
             local = self.store.track(self.track_key)
             candidates = local.get('candidates', [])
@@ -416,23 +416,23 @@ class MainWindow(QMainWindow):
             self.store.update_track(self.track_key, {'offset': value})
 
     def import_lrc(self):
-        name, _ = QFileDialog.getOpenFileName(self, 'Impor LRC UTF-8', '', 'Lyrics (*.lrc *.txt)')
+        name, _ = QFileDialog.getOpenFileName(self, 'Import UTF-8 LRC', '', 'Lyrics (*.lrc *.txt)')
         if not name:
             return
         try:
             if Path(name).stat().st_size > 4_000_000:
-                raise ValueError('File terlalu besar')
+                raise ValueError('File is too large')
             text = Path(name).read_text(encoding='utf-8-sig')
             self.generation += 1
             self.set_lyrics({'syncedLyrics': text, 'plainLyrics': text})
-            self.sync_status.setText('Impor manual • versi/durasi belum diverifikasi; tanpa timestamp tidak dibuat timing buatan')
+            self.sync_status.setText('Manual import • version and duration unverified. Lines without timestamps are shown as plain text.')
         except (OSError, ValueError) as error:
-            QMessageBox.warning(self, 'Impor gagal', str(error))
+            QMessageBox.warning(self, 'Import failed', str(error))
 
     def command(self, command, target=0):
         if self.packet:
             if command == 'seek' and self.packet.get('quantized'):
-                self.sync_status.setText('Seek melalui Liris dinonaktifkan saat waktu media tidak sejalan; gunakan pemutar.')
+                self.sync_status.setText('The player clocks disagree. Seek in the music player instead.')
                 return
             packet = dict(self.packet, command=command, target=target, receivedAt=time.time())
             atomic_json(self.store.root / 'Bridge' / (packet['session'] + '.command'), packet)

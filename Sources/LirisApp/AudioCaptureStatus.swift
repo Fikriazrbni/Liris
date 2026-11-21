@@ -10,20 +10,20 @@ struct AudioCaptureActivity: Equatable {
     var isEngaged: Bool { phase != .off }
     var headline: String {
         switch phase {
-        case .off: "Pengenalan audio mati"
-        case .starting: "Mengaktifkan audio sistem…"
-        case .active: suppressed ? "Audio aktif · pengenalan ditahan" : "Pengenalan audio aktif"
-        case .stopping: "Menghentikan audio sistem…"
+        case .off: "Audio recognition is off"
+        case .starting: "Starting system audio capture…"
+        case .active: suppressed ? "Audio capture on · recognition paused" : "Audio recognition is on"
+        case .stopping: "Stopping system audio capture…"
         }
     }
     var detail: String {
         switch phase {
-        case .off: "Selalu aktifkan manual. Hubungkan tidak menyalakan audio."
-        case .starting: "Menunggu izin capture macOS. Kamu bisa membatalkannya."
+        case .off: "Enable audio manually for each session. Connecting only links your player."
+        case .starting: "Waiting for macOS permission to capture audio. You can cancel this request."
         case .active: suppressed
-            ? "Capture masih aktif; signature Shazam ditahan selama extension memutar musik."
-            : "Signature cuplikan dikirim berulang ke Shazam. Percakapan bisa ikut teranalisis."
-        case .stopping: "Cuplikan dibuang; menunggu capture berhenti."
+            ? "Audio capture is still on. Fingerprints are paused while the extension detects music."
+            : "Audio fingerprints are sent to Shazam regularly. Conversations in system audio may be included."
+        case .stopping: "Discarding the sample and waiting for capture to stop."
         }
     }
 }
@@ -70,14 +70,14 @@ struct AudioCaptureStatusView: View {
     @ViewBuilder private var control: some View {
         if model.audioActivity.isEngaged {
             Button { model.stopAudioRecognition() } label: {
-                Label(model.audioActivity.phase == .stopping ? "Menghentikan…" : "Matikan audio", systemImage: "stop.circle.fill")
+                Label(model.audioActivity.phase == .stopping ? "Stopping…" : "Stop Audio", systemImage: "stop.circle.fill")
             }.buttonStyle(QuietButton()).foregroundStyle(.orange)
                 .disabled(model.audioActivity.phase == .stopping)
-                .accessibilityLabel("Matikan pengenalan audio sistem")
+                .accessibilityLabel("Stop system audio recognition")
         } else {
-            Button("Aktifkan audio") { model.enableAudioRecognition() }
+            Button("Enable Audio") { model.enableAudioRecognition() }
                 .buttonStyle(QuietButton()).disabled(!model.canStartAudioRecognition)
-                .help("Pilih Auto dan Hubungkan, lalu aktifkan secara manual. Audio output termasuk percakapan dapat dianalisis Shazam.")
+                .help("Select Auto and connect, then enable audio manually. Shazam may analyze conversations in system audio.")
         }
     }
 }

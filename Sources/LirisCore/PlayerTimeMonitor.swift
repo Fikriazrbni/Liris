@@ -72,7 +72,7 @@ public struct PlayerTimeMonitor: Sendable {
 
         if unresolvedUI {
             source = .unavailable; agreeingSamples = 0
-            return decision(nil, source, .waiting, "Dua jam pemutar berbeda. Menunggu sumber waktu yang sejalan.")
+            return decision(nil, source, .waiting, "The player clocks disagree. Waiting for a consistent time.")
         }
 
         if let visible, let media, mediaUsable, abs(visible - media) <= 1.25 {
@@ -80,23 +80,23 @@ public struct PlayerTimeMonitor: Sendable {
             // Avoid rapid switches at a second boundary after recovering a broken clock.
             if source == .progress || source == .clock, agreeingSamples < 3 {
                 source = visibleSource
-                return decision(visible, source, .recovered, "Menstabilkan kembali waktu pemutar.")
+                return decision(visible, source, .recovered, "Waiting for the player clock to stabilize.")
             }
             source = .media
             return decision(media, source, conflictingUI ? .recovered : .consistent,
-                conflictingUI ? "Progress berbeda; otomatis mengikuti jam yang sejalan." : "Waktu media dan pemutar cocok.")
+                conflictingUI ? "Progress readings disagree. Following the clock that matches playback." : "The media and player clocks agree.")
         }
         agreeingSamples = 0
         if let visible, !visibleStalled {
             source = visibleSource
-            return decision(visible, source, .recovered, "Waktu tidak sejalan; otomatis mengikuti progress pemutar.")
+            return decision(visible, source, .recovered, "Player clocks disagree. Following the progress bar.")
         }
         if let media, mediaUsable {
             source = .media
             return decision(media, source, visible == nil ? .limited : .recovered,
-                visible == nil ? "Hanya satu sumber waktu tersedia." : "Progress berhenti; otomatis mengikuti waktu media yang bergerak.")
+                visible == nil ? "Only one timing source is available." : "The progress bar has stopped. Following the media clock.")
         }
         source = .unavailable
-        return decision(nil, source, .waiting, "Waktu pemutar belum dapat dipercaya. Lirik dijeda sampai waktu pulih.")
+        return decision(nil, source, .waiting, "The player clock is unreliable. Lyrics will resume when timing recovers.")
     }
 }

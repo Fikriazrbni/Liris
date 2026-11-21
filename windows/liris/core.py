@@ -79,22 +79,22 @@ def active_line(lines, position):
 def assess(candidate, track):
     reasons = []
     if normalized(candidate.get('trackName', '')) != normalized(track.get('title', '')):
-        reasons.append('judul berbeda')
+        reasons.append('title mismatch')
     artist, expected = normalized(candidate.get('artistName', '')), normalized(track.get('artist', ''))
     if not artist or not expected or artist != expected:
-        reasons.append('artis berbeda/tidak diketahui')
+        reasons.append('artist unknown or different')
     # Version qualifiers remain in normalized titles; never strip live/remix/cover.
     duration = candidate.get('duration')
     actual = track.get('duration', 0)
     if not finite_number(duration) or actual <= 0:
-        reasons.append('durasi belum dapat diverifikasi')
+        reasons.append('duration unverified')
     elif abs(duration - actual) > 5:
-        reasons.append('durasi berbeda >5 detik')
+        reasons.append('duration differs by more than 5 seconds')
     lines = parse_lrc(candidate.get('syncedLyrics') or '')
     if not lines:
-        reasons.append('tanpa timestamp')
+        reasons.append('no timestamps')
     elif actual > 0 and lines[-1].time > actual + 3:
-        reasons.append('timestamp melewati akhir lagu')
+        reasons.append('timestamp past the end of the track')
     return reasons
 
 

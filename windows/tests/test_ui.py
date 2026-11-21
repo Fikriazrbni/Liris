@@ -44,12 +44,12 @@ class UiTests(unittest.TestCase):
 
     def test_disconnect_clears_old_source_error_and_position(self):
         self.window.use_track(packet())
-        self.window.source.setText('ShazamIO • posisi perkiraan')
+        self.window.source.setText('ShazamIO • estimated position')
         self.window.sync_status.setText('TLS handshake timed out')
         self.window.position.setText('1:44')
         self.window.disconnect_player()
         self.assertNotIn('ShazamIO', self.window.source.text())
-        self.assertEqual(self.window.sync_status.text(), 'Belum ada lirik')
+        self.assertEqual(self.window.sync_status.text(), 'No lyrics yet')
         self.assertEqual(self.window.position.text(), '0:00')
 
     def test_activation_requires_explicit_yes_and_disconnect_invalidates_late_match(self):
@@ -108,7 +108,7 @@ class UiTests(unittest.TestCase):
         self.window.populate_versions()
         self.window.choose_version()
         self.assertEqual(self.window.store.track(key)['choice'], 1)
-        self.assertIn('durasi berbeda', self.window.sync_status.text())
+        self.assertIn('duration differs', self.window.sync_status.text())
 
     def test_overlay_three_lines_follow_active_index_and_boundaries(self):
         from liris.presentation import present
@@ -132,7 +132,7 @@ class UiTests(unittest.TestCase):
         self.window.connect_button.click()
         present(self.window)
         self.assertTrue(self.window.connected)
-        self.assertEqual(self.window.connect_button.text(), 'Putuskan')
+        self.assertEqual(self.window.connect_button.text(), 'Disconnect')
         self.window.connect_button.click()
         self.assertFalse(self.window.connected)
         self.assertFalse(self.window.audio.enabled)
@@ -155,7 +155,7 @@ class UiTests(unittest.TestCase):
         style = user32.GetWindowLongW(int(overlay.winId()), -20)
         self.assertFalse(style & 0x20)
         actions = self.window.tray.contextMenu().actions()
-        stop = next(a for a in actions if a.text() == 'Matikan audio')
+        stop = next(a for a in actions if a.text() == 'Stop Audio')
         with patch.object(self.window.audio, 'stop') as halt:
             stop.trigger()
             halt.assert_called_once()

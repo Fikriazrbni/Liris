@@ -2,13 +2,9 @@
 
 ## Stack decision
 
-Mesin inspeksi: Windows 11 x64 (build 26300), Python 3.13.5 tersedia; .NET SDK tidak
-tersedia. PySide6/Qt Widgets menyediakan UI Windows, tray, topmost dan input-transparent
-window tanpa memport SwiftUI. PyAudioWPatch mengekspos default WASAPI output loopback.
-NumPy/SciPy melakukan downmix/resampling di RAM; Python berbagi backend ShazamIO
-yang sudah ada. PyInstaller membuat runtime redistributable tanpa Python pengguna.
+The development machine ran Windows 11 x64 (build 26300) with Python 3.13.5 and no .NET SDK. PySide6/Qt Widgets provides the Windows interface, tray and topmost click-through overlay. PyAudioWPatch exposes the default WASAPI output loopback endpoint. NumPy and SciPy downmix and resample samples in memory. The Python app reuses the existing ShazamIO backend, and PyInstaller packages the runtime so users can run the app without their own Python installation.
 
-Referensi primer yang diperiksa:
+The stack decision drew on these primary sources:
 
 - [Qt deployment](https://doc.qt.io/qtforpython-6/deployment/)
 - [PyAudioWPatch](https://github.com/s0d3s/PyAudioWPatch)

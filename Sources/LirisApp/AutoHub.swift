@@ -8,7 +8,7 @@ final class AutoHub {
     let audio = AudioRecognition()
     private var selected: AutoPacket?
     var diagnosticExtras: [String: Any] = [:]
-    private(set) var route = "Menunggu extension YouTube / YouTube Music"
+    private(set) var route = "Waiting for the YouTube or YouTube Music extension"
     func poll() -> TrackSnapshot? {
         var diagnostics = audio.diagnostics
         diagnostics.merge(diagnosticExtras) { _, new in new }
@@ -39,13 +39,13 @@ final class AutoHub {
                 positionSource: packet.quantized == true ? "extension-progress" : "extension", mediaPosition: packet.quantized == true ? nil : position, progressPosition: packet.quantized == true ? position : nil, mediaPlaying: packet.playing, playbackRate: 1)
         }
         selected = nil
-        if let snapshot = audio.snapshot() { route = "Auto · audio sistem (ShazamIO)"; return snapshot }
-        route = audio.activity.isEngaged ? audio.progressStatus : "Menunggu musik dari extension YouTube atau YouTube Music."
+        if let snapshot = audio.snapshot() { route = "Auto · system audio (ShazamIO)"; return snapshot }
+        route = audio.activity.isEngaged ? audio.progressStatus : "Waiting for music from the YouTube or YouTube Music extension."
         return nil
     }
     func control(track: TrackSnapshot, position: Double?) throws {
         guard var packet = selected, packet.trackID == track.id, packet.fresh(at: Date().timeIntervalSince1970) else {
-            throw BridgeError(message: "Pemutar ini memakai pengenalan audio. Gunakan kontrol aplikasi sumber.")
+            throw BridgeError(message: "This player is using audio recognition. Use the controls in your music app.")
         }
         packet.command = position == nil ? "toggle" : "seek"; packet.target = position
         packet.receivedAt = Date().timeIntervalSince1970

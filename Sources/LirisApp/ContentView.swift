@@ -39,21 +39,21 @@ struct ContentView: View {
             Text("A LITTLE CLOSER TO THE MUSIC")
                 .font(.system(size: 7, weight: .medium)).tracking(1.2).foregroundStyle(Palette.muted)
                 .padding(.bottom, 42)
-            Eyebrow(text: "RUANG DENGAR").padding(.bottom, 13)
+            Eyebrow(text: "MUSIC LIBRARY").padding(.bottom, 13)
             ForEach([Section.listening, .search, .appearance], id: \.self) { section in
                 navButton(section).padding(.bottom, 6)
             }
             Spacer(minLength: 25)
             VStack(alignment: .leading, spacing: 13) {
                 Image(systemName: "quote.opening").font(.system(size: 23)).foregroundStyle(model.accent.opacity(0.6))
-                Text("Ada cerita\ndi setiap nada.").font(.system(size: 20, weight: .medium, design: .serif)).foregroundStyle(.white.opacity(0.75)).lineSpacing(4)
-                Text("Beri ruang untuk mendengarnya.").font(.system(size: 10)).foregroundStyle(Palette.muted).lineSpacing(3)
+                Text("A story in\nevery note.").font(.system(size: 20, weight: .medium, design: .serif)).foregroundStyle(.white.opacity(0.75)).lineSpacing(4)
+                Text("Take a moment to listen.").font(.system(size: 10)).foregroundStyle(Palette.muted).lineSpacing(3)
             }.padding(.bottom, 32)
             navButton(.help)
             Divider().overlay(Palette.line).padding(.vertical, 18)
             HStack(spacing: 7) {
                 Circle().fill(model.accent).frame(width: 5, height: 5)
-                Text("NATIVE DI MAC").font(.system(size: 8, weight: .semibold)).tracking(1.2)
+                Text("NATIVE MAC APP").font(.system(size: 8, weight: .semibold)).tracking(1.2)
                 Spacer()
                 Text("v\(Bundle.main.object(forInfoDictionaryKey: "CFBundleShortVersionString") as? String ?? "0.4.7")").font(.system(size: 9)).foregroundStyle(Palette.muted)
             }.foregroundStyle(Palette.muted)
@@ -79,17 +79,17 @@ struct ContentView: View {
         HStack {
             VStack(alignment: .leading, spacing: 5) {
                 Eyebrow(text: "YOUR EVERYDAY SOUNDTRACK")
-                Text(model.section == .listening ? "Musikmu, kata demi kata." : model.section.rawValue)
+                Text(model.section == .listening ? "Your music, word by word." : model.section.rawValue)
                     .font(.system(size: 22, weight: .medium)).tracking(-0.6)
             }
             Spacer()
             if model.demo {
-                Text("DEMO · TANPA AUDIO").font(.system(size: 8, weight: .semibold)).tracking(1)
+                Text("DEMO · NO AUDIO").font(.system(size: 8, weight: .semibold)).tracking(1)
                     .foregroundStyle(model.accent).padding(9).background(model.accent.opacity(0.08), in: Capsule())
             }
             Button { model.toggleOverlay() } label: {
-                Label(model.overlayVisible ? "Tutup overlay" : "Buka overlay", systemImage: "rectangle.on.rectangle")
-            }.buttonStyle(QuietButton()).help("Tampilkan lirik di atas aplikasi lain · ⇧⌘L")
+                Label(model.overlayVisible ? "Close Overlay" : "Open Overlay", systemImage: "rectangle.on.rectangle")
+            }.buttonStyle(QuietButton()).help("Show lyrics above other apps · ⇧⌘L")
         }.padding(.horizontal, 30).padding(.top, 32).padding(.bottom, 23)
     }
 
@@ -111,24 +111,24 @@ struct ListeningView: View {
             VStack(spacing: 16) {
                 SourceBar()
                 if model.hasTrack && !model.demo { SyncStatusView() }
-                if let error = model.connectionError { ErrorNotice(message: error, action: "Panduan koneksi") { model.section = .help } }
+                if let error = model.connectionError { ErrorNotice(message: error, action: "Connection Guide") { model.section = .help } }
                 NowPlayingCard()
                 LyricStage().frame(maxHeight: .infinity)
                 PlaybackBar()
             }.frame(maxWidth: .infinity, maxHeight: .infinity)
             ScrollView {
               VStack(alignment: .leading, spacing: 22) {
-                HStack { Eyebrow(text: "SESUAIKAN SUASANA"); Spacer(); Image(systemName: "slider.horizontal.3").foregroundStyle(Palette.muted) }
+                HStack { Eyebrow(text: "APPEARANCE"); Spacer(); Image(systemName: "slider.horizontal.3").foregroundStyle(Palette.muted) }
                 AppearanceControls()
                 Divider().overlay(Palette.line)
                 SyncControls()
                 Spacer(minLength: 8)
                 VStack(alignment: .leading, spacing: 9) {
                     Image(systemName: "rectangle.on.rectangle").foregroundStyle(model.accent)
-                    Text("Lirik tetap dekat.").font(.system(size: 17, weight: .medium)).fixedSize(horizontal: false, vertical: true)
-                    Text("Bawa lirik ke atas aplikasi lain dengan mode overlay.").font(.system(size: 11)).foregroundStyle(Palette.muted).lineSpacing(4).fixedSize(horizontal: false, vertical: true)
+                    Text("Keep the lyrics in view.").font(.system(size: 17, weight: .medium)).fixedSize(horizontal: false, vertical: true)
+                    Text("Show lyrics over your other apps with the floating overlay.").font(.system(size: 11)).foregroundStyle(Palette.muted).lineSpacing(4).fixedSize(horizontal: false, vertical: true)
                     Button { model.toggleOverlay() } label: {
-                        HStack { Text(model.overlayVisible ? "Sembunyikan overlay" : "Tampilkan overlay"); Spacer(); Image(systemName: "arrow.up.right") }
+                        HStack { Text(model.overlayVisible ? "Hide Overlay" : "Show Overlay"); Spacer(); Image(systemName: "arrow.up.right") }
                     }.buttonStyle(QuietButton())
                 }.padding(17).background(model.accent.opacity(0.04), in: RoundedRectangle(cornerRadius: 13))
               }.padding(20).frame(maxWidth: .infinity)
@@ -143,11 +143,11 @@ struct SourceBar: View {
     @EnvironmentObject private var model: AppModel
     var body: some View {
         HStack(spacing: 10) {
-            Picker("Sumber musik", selection: $model.source) {
+            Picker("Music source", selection: $model.source) {
                 ForEach(MusicSource.allCases) { source in Label(source.rawValue, systemImage: source.symbol).tag(source) }
             }.labelsHidden().frame(width: 151)
             if model.source == .auto {
-                Button("Siapkan Auto") { model.section = .help }.buttonStyle(QuietButton())
+                Button("Set Up Auto") { model.section = .help }.buttonStyle(QuietButton())
             }
             if model.source == .youtube {
                 Picker("Browser", selection: $model.browser) {
@@ -164,7 +164,7 @@ struct ConnectionButton: View {
     @EnvironmentObject private var model: AppModel
 
     var body: some View {
-        Button(model.connected ? "Putuskan" : "Hubungkan") {
+        Button(model.connected ? "Disconnect" : "Connect") {
             if model.connected { model.disconnect() } else { model.connect() }
         }
     }
@@ -178,7 +178,7 @@ struct NowPlayingCard: View {
             VStack(alignment: .leading, spacing: 8) {
                 HStack(spacing: 6) {
                     Image(systemName: model.demo ? "sparkles" : model.source.symbol).font(.system(size: 9))
-                    Text(model.demo ? "LIRIS STUDIO · DEMO" : model.hasTrack ? "SEDANG DIPUTAR" : "SIAP MENDENGARKAN")
+                    Text(model.demo ? "LIRIS STUDIO · DEMO" : model.hasTrack ? "NOW PLAYING" : "READY TO LISTEN")
                         .font(.system(size: 8, weight: .semibold)).tracking(1.4)
                 }.foregroundStyle(model.accent)
                 Text(model.title).font(.system(size: model.hasTrack ? 25 : 23, weight: .semibold)).tracking(-0.8).lineLimit(2)
@@ -217,7 +217,7 @@ struct AlbumArt: View {
             }
         }.clipShape(RoundedRectangle(cornerRadius: 12))
             .overlay(RoundedRectangle(cornerRadius: 12).strokeBorder(.white.opacity(0.09)))
-            .accessibilityLabel("Sampul album")
+            .accessibilityLabel("Album cover")
     }
 }
 
@@ -227,7 +227,7 @@ struct LyricStage: View {
     var body: some View {
         VStack(spacing: 0) {
             HStack {
-                Eyebrow(text: "DI ANTARA NADA")
+                Eyebrow(text: "BETWEEN THE NOTES")
                 Spacer()
                 if model.loading { ProgressView().controlSize(.mini) }
                 else if model.record?.hasSync == true {
@@ -236,19 +236,19 @@ struct LyricStage: View {
                 }
             }.padding(.bottom, 8)
             if model.loading {
-                Spacer(); ProgressView("Mencari kata untuk lagumu…").font(.system(size: 12)).foregroundStyle(Palette.muted); Spacer()
+                Spacer(); ProgressView("Finding lyrics for your song…").font(.system(size: 12)).foregroundStyle(Palette.muted); Spacer()
             } else if let message = model.lyricsError {
                 Spacer()
                 Image(systemName: "text.magnifyingglass").font(.system(size: 28)).foregroundStyle(Palette.muted).padding(.bottom, 12)
                 Text(message).font(.system(size: 12)).foregroundStyle(Palette.muted).multilineTextAlignment(.center).lineLimit(4)
                 HStack {
-                    Button("Cari lirik") { model.searchQuery = [model.snapshot?.title, model.snapshot?.artist].compactMap { $0 }.joined(separator: " "); model.section = .search }.buttonStyle(QuietButton())
-                    Button("Coba lagi") { model.loadLyrics() }.buttonStyle(QuietButton())
+                    Button("Find Lyrics") { model.searchQuery = [model.snapshot?.title, model.snapshot?.artist].compactMap { $0 }.joined(separator: " "); model.section = .search }.buttonStyle(QuietButton())
+                    Button("Try Again") { model.loadLyrics() }.buttonStyle(QuietButton())
                 }.padding(.top, 12)
                 Spacer()
             } else if model.record?.instrumental == true {
                 Spacer(); Image(systemName: "pianokeys").font(.system(size: 32)).foregroundStyle(model.accent)
-                Text("Instrumental. Nikmati nadanya.").font(.system(size: 15)).foregroundStyle(Palette.muted).padding(.top, 16); Spacer()
+                Text("Instrumental track").font(.system(size: 15)).foregroundStyle(Palette.muted).padding(.top, 16); Spacer()
             } else if !model.lines.isEmpty {
                 GeometryReader { geometry in
                     ScrollViewReader { reader in
@@ -263,7 +263,7 @@ struct LyricStage: View {
                                             .frame(maxWidth: .infinity).padding(.horizontal, 14)
                                             .padding(.vertical, 2)
                                     }.buttonStyle(.plain).id(index).disabled(!model.canSeek)
-                                        .help(model.canSeek ? "Lompat ke \(TimeLabel.format(line.time))" : "Pindahkan posisi lagu langsung di YouTube Music")
+                                        .help(model.canSeek ? "Jump to \(TimeLabel.format(line.time))" : "Change the playback position in YouTube Music")
                                 }
                             }.padding(.vertical, max(30, geometry.size.height * 0.38))
                         }.scrollIndicators(.hidden)
@@ -276,17 +276,17 @@ struct LyricStage: View {
                     }
                 }
             } else if let plain = model.record?.plainLyrics, !plain.isEmpty {
-                Text("Lirik tersedia tanpa timestamp.").font(.system(size: 10)).foregroundStyle(model.accent).padding(.top, 10)
+                Text("Lyrics are available without timestamps.").font(.system(size: 10)).foregroundStyle(model.accent).padding(.top, 10)
                 ScrollView { Text(plain).font(.system(size: 18, weight: .medium)).lineSpacing(12).multilineTextAlignment(.center).foregroundStyle(.white.opacity(0.7)).padding(16).frame(maxWidth: .infinity) }
             } else {
                 Spacer()
                 Image(nsImage: LirisMark.image).resizable().scaledToFit().frame(width: 44).accessibilityHidden(true).foregroundStyle(model.accent.opacity(0.7))
-                Text(model.source == .auto && model.connected ? model.status : "Satu lagu. Seribu rasa.").font(.system(size: model.source == .auto && model.connected ? 16 : 24, weight: .medium, design: .serif)).padding(.top, 17)
-                Text(model.connected ? "Putar lagu di pemutar yang terhubung.\nLirik akan mengikuti saat tersedia." : "Pilih sumber musik, lalu klik Hubungkan.")
+                Text(model.source == .auto && model.connected ? model.status : "Waiting for a song").font(.system(size: model.source == .auto && model.connected ? 16 : 24, weight: .medium, design: .serif)).padding(.top, 17)
+                Text(model.connected ? "Play a song in the connected player.\nLyrics will appear when available." : "Choose a music source, then click Connect.")
                     .font(.system(size: 12)).foregroundStyle(Palette.muted).multilineTextAlignment(.center).lineSpacing(5).padding(.top, 8)
                 HStack(spacing: 12) {
-                    Button("Panduan koneksi") { model.section = .help }.buttonStyle(QuietButton())
-                    Button("Coba demo") { model.startDemo() }.buttonStyle(QuietButton())
+                    Button("Connection Guide") { model.section = .help }.buttonStyle(QuietButton())
+                    Button("Try the Demo") { model.startDemo() }.buttonStyle(QuietButton())
                 }.padding(.top, 21)
                 Spacer()
             }
@@ -304,24 +304,24 @@ struct PlaybackBar: View {
                 Slider(value: Binding(get: { scrubPosition ?? model.position }, set: { scrubPosition = $0 }), in: 0...max(1, model.duration), onEditingChanged: { editing in
                     if !editing, let value = scrubPosition { model.seek(value); scrubPosition = nil }
                 })
-                    .controlSize(.mini).disabled(!model.canSeek || model.duration <= 0).accessibilityLabel("Posisi lagu")
-                    .help(model.canSeek ? "Posisi lagu" : "Pindahkan posisi lagu langsung di YouTube Music")
+                    .controlSize(.mini).disabled(!model.canSeek || model.duration <= 0).accessibilityLabel("Playback position")
+                    .help(model.canSeek ? "Playback position" : "Change the playback position in YouTube Music")
                 Text(TimeLabel.format(model.duration)).frame(width: 34, alignment: .trailing)
             }.font(.system(size: 10, design: .monospaced)).foregroundStyle(Palette.muted)
             HStack {
-                Button { model.importLRC() } label: { Label("Impor LRC", systemImage: "square.and.arrow.down").font(.system(size: 10)) }
+                Button { model.importLRC() } label: { Label("Import LRC", systemImage: "square.and.arrow.down").font(.system(size: 10)) }
                     .buttonStyle(.plain).foregroundStyle(Palette.muted)
                 Spacer()
                 Button { model.seek(model.position - 5) } label: { Image(systemName: "gobackward.5").font(.system(size: 19)) }
-                    .buttonStyle(.plain).disabled(!model.canSeek).accessibilityLabel("Mundur 5 detik")
+                    .buttonStyle(.plain).disabled(!model.canSeek).accessibilityLabel("Back 5 seconds")
                 Button { model.togglePlayback() } label: {
                     Image(systemName: model.playing ? "pause.fill" : "play.fill").font(.system(size: 14, weight: .semibold))
                         .foregroundStyle(Palette.background).frame(width: 42, height: 42).background(model.accent, in: Circle())
-                }.buttonStyle(.plain).disabled(!model.hasTrack).padding(.horizontal, 13).accessibilityLabel(model.playing ? "Jeda" : "Putar")
+                }.buttonStyle(.plain).disabled(!model.hasTrack).padding(.horizontal, 13).accessibilityLabel(model.playing ? "Pause" : "Play")
                 Button { model.seek(model.position + 5) } label: { Image(systemName: "goforward.5").font(.system(size: 19)) }
-                    .buttonStyle(.plain).disabled(!model.canSeek).accessibilityLabel("Maju 5 detik")
+                    .buttonStyle(.plain).disabled(!model.canSeek).accessibilityLabel("Forward 5 seconds")
                 Spacer()
-                Text(model.connected ? "LIVE" : "TIMER MANUAL")
+                Text(model.connected ? "LIVE" : "MANUAL TIMER")
                     .font(.system(size: 8, weight: .semibold)).tracking(1.2).foregroundStyle(Palette.muted).frame(width: 83, alignment: .trailing)
             }
         }.padding(.top, 12).overlay(alignment: .top) { Rectangle().fill(Palette.line).frame(height: 1) }

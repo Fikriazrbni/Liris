@@ -2,6 +2,7 @@
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <dict>
+    <key>CFBundleDevelopmentRegion</key><string>en</string>
     <key>CFBundleName</key><string>Liris</string>
     <key>CFBundleDisplayName</key><string>Liris</string>
     <key>CFBundleExecutable</key><string>Liris</string>
@@ -13,9 +14,9 @@
     <key>LSUIElement</key><true/>
     <key>LSMinimumSystemVersion</key><string>14.0</string>
     <key>LirisAudioProvider</key><string>shazamio</string>
-    <key>NSAudioCaptureUsageDescription</key><string>Mengenali lagu dari audio sistem untuk menampilkan lirik, termasuk musik dari Discord. Audio tidak disimpan.</string>
+    <key>NSAudioCaptureUsageDescription</key><string>Liris identifies songs in system audio, including music from Discord, to show their lyrics. Audio samples are not saved.</string>
     <key>NSHighResolutionCapable</key><true/>
     <key>NSPrincipalClass</key><string>NSApplication</string>
-    <key>NSAppleEventsUsageDescription</key><string>Liris membaca judul, artis, dan posisi lagu di YouTube Music, Spotify, atau Apple Music agar lirik mengikuti musik. Kontrol putar/jeda dan posisi lagu hanya dilakukan saat kamu menekan kontrol pemutar.</string>
+    <key>NSAppleEventsUsageDescription</key><string>Liris reads the title, artist, and playback position from YouTube Music, Spotify, or Apple Music to keep lyrics in sync. It changes playback only when you use the player controls.</string>
 </dict>
 </plist>

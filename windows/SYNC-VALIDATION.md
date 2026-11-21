@@ -69,5 +69,5 @@ No audio files were written by the probe. Existing release ZIPs remain unchanged
 An old **extracted portable package** can be deleted after its Liris process exits
 and the new package works. Keep the new folder complete, including `_internal`,
 LirisBridge.exe and LirisWorker.exe. If native messaging was registered from the old
-folder, run Setup extension from the new package first. Do not confuse old portable
+folder, choose **Set Up Extension** in the new package first. Do not confuse old portable
 copies with the development repository or its `windows/` source folder.

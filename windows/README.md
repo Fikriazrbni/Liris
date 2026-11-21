@@ -1,111 +1,59 @@
 # Liris for Windows — development preview
 
-Versi Windows berada di folder `windows/`. Kedua platform menggunakan extension
-di `Extension/` dan backend pengenalan audio di `backend/`.
+The Windows app lives in `windows/`. The Mac and Windows versions share the browser extension in `Extension/` and the recognition backend in `backend/`.
 
-## Menjalankan paket
+## Install and run
 
-Untuk instalasi, jalankan `Liris-Setup-Windows-x64.exe`. Liris terpasang untuk
-akun Windows saat ini tanpa hak administrator. Cari **Liris** di Start/Search
-atau buka shortcut desktop jika opsi tersebut dicentang. Untuk menghapusnya,
-buka **Settings → Apps → Installed apps → Liris → Uninstall**.
+Run `Liris-Setup-Windows-x64.exe` to install for the current Windows user without administrator rights. Find **Liris** in Start or Search, or use the desktop shortcut if you selected that option. To remove it, open **Settings → Apps → Installed apps → Liris → Uninstall**.
 
-Untuk versi portable, ekstrak **seluruh** `Liris-Windows-x64-preview.zip` ke lokasi tetap, lalu buka
-`Liris-Windows/Liris.exe`. Jangan pisahkan EXE dari `_internal/` dan dua executable
-pendamping. Paket membawa Python, Qt, WASAPI/PortAudio, ShazamIO dan dependensinya;
-pengguna akhir tidak perlu Python, pip, .NET SDK, atau build manual.
+For the portable version, extract the **entire** `Liris-Windows-x64-preview.zip` to a permanent location and open `Liris-Windows/Liris.exe`. Keep the EXE with `_internal/` and both companion executables. The package includes Python, Qt, WASAPI/PortAudio, ShazamIO and their dependencies. End users can run it without Python, pip, the .NET SDK or a manual build.
 
-Target awal Windows 11 x64. Belum ditandatangani; belum diuji pada instalasi Windows
-bersih, Windows 10, ARM64, remote desktop, atau perangkat audio lain. Ini preview
-pengembangan, bukan klaim parity final atau release Windows publik.
+The initial target is Windows 11 x64. The development preview is unsigned. Clean Windows installations, Windows 10, ARM64, Remote Desktop and other audio devices were outside the initial test coverage. The preview does not establish feature parity or production readiness.
 
-1. Buka **Bantuan → Setup extension Windows** dari Liris. Ini hanya menulis
-   manifest host Liris dan key HKCU NativeMessagingHosts untuk Chrome/Brave/Edge.
-2. Buka halaman Extensions browser → Developer mode → Load unpacked → pilih folder
-   `Extension` yang dibuka. Extension sama persis dengan extension Mac.
-3. Reload YouTube/YouTube Music, lalu **Hubungkan**. Tidak memakai Apple Events,
-   debugging port, cookie, atau izin JavaScript Apple Events.
-4. Audio tetap **Mati**. Jalur extension tidak membutuhkan audio.
-5. Untuk Discord/aplikasi lain, klik **Aktifkan audio…**, baca penjelasan privasi,
-   lalu setujui secara manual. **Matikan audio** tersedia di jendela, overlay tidak
-   terkunci, dan tray. Connect/reconnect/Putuskan selalu mematikan audio.
+1. In Liris, open **Help → Set Up Extension**. This writes the Liris host manifest and its current-user (HKCU) NativeMessagingHosts keys for Chrome, Brave and Edge.
+2. On the browser's Extensions page, enable **Developer mode**, click **Load unpacked** and select the `Extension` folder that Liris opened. This is the same extension used on Mac.
+3. Reload YouTube or YouTube Music, then click **Connect**. This route uses neither Apple Events nor a debugging port. It requires no cookies or JavaScript Apple Events permission.
+4. Audio recognition stays **Off**. The extension reads playback information directly.
+5. For Discord or another app, select **Enable Audio…**, read the privacy notice and confirm. **Stop Audio** is available in the main window, unlocked overlay and tray. Connecting, reconnecting and disconnecting all switch audio off.
 
-Jika beralih dari portable ke installer, atau folder paket dipindah, jalankan
-Setup extension lagi agar path native host
-diperbarui. Setup tidak menginstal extension secara diam-diam. Untuk menghapus
-registrasi host, jalankan `unregister-bridge.ps1`, lalu hapus extension di browser.
+After moving the package or switching from portable to installed, run **Set Up Extension** again to update the host path. Registration does not automatically install the extension. To remove the host registration, run `unregister-bridge.ps1`, then remove the extension from the browser.
 
-Tutup jendela menyembunyikan aplikasi ke tray bila tray tersedia; gunakan **Keluar**
-untuk menghentikan aplikasi. Klik ganda ikon tray untuk membuka jendela. Overlay
-bisa diubah ukuran/dipindah lewat bingkai Windows, diatur warna/ukuran font/opasitas,
-dan dikunci klik menembus. **Buka kunci overlay** selalu tersedia lewat tray.
+If the tray is available, closing the window hides the app there. Double-click the tray icon to open the window, or choose **Quit** to exit. Drag or resize the overlay using its Windows frame. You can adjust its color, font size and opacity or lock it for click-through. The tray always offers **Unlock Overlay**.
 
-## Lirik dan waktu
+## Lyrics and timing
 
-- Pencarian otomatis LRCLIB, pencarian manual, pilihan versi, dan impor LRC UTF-8.
-- LRC multi timestamp, pecahan detik, offset header, baris kosong, dan teks biasa.
-  Teks biasa tidak diberi timing buatan.
-- Offset positif memajukan lirik; tersimpan per judul/artis/album/durasi.
-- Cache kandidat tujuh hari, pilihan aman, fallback offline dengan validasi ulang.
-  HTTP 429/503 menghormati Retry-After; tidak retry pada setiap tick.
-- Versi otomatis memerlukan judul/artis cocok, durasi ±5 detik, dan timestamp tidak
-  melewati akhir lagu lebih dari tiga detik. Live/remix tidak dihapus dari judul.
-  Album diprioritaskan; konflik timing empat baris unik diberi peringatan.
-- Pilihan manual yang tidak cocok tetap dapat dilihat dengan peringatan, tetapi
-  tidak disimpan sebagai pilihan otomatis aman. Impor LRC berlaku untuk lagu aktif
-  dan tidak disimpan permanen. Periksa ulang mengambil kandidat baru; Pilihan
-  otomatis menghapus pilihan dan offset lagu itu.
-- Extension mengirim heartbeat sekitar 500 ms; kedaluwarsa tiga detik. Jam monotonic
-  mengikuti pause/seek/lagu baru. Sumber waktu quantized dibatasi satu detik di depan
-  pembacaan terakhir. Klik ganda baris melakukan seek jika timeline aman.
-- Audio memakai offset Shazam + waktu sejak awal cuplikan, dengan TTL 35 detik.
-  Keheningan menahan waktu; suara ada tidak membuktikan lagu sama. Pause, seek,
-  perubahan lagu, campuran suara dan speed berbeda tidak dapat diverifikasi dari
-  metadata audio saja. UI selalu menyebut posisi ini **perkiraan**.
-- Kesamaan metadata/timestamp bukan bukti sinkronisasi dengan vokal. Belum ada
-  pengujian sinkronisasi vokal nyata. Capture Discord dan pengenalan dua lagu telah
-  berhasil pada sesi Windows ini; lihat VALIDATION.md untuk batas buktinya.
+- Liris can fetch lyrics automatically from LRCLIB, search manually, select a version or import a UTF-8 LRC file.
+- LRC support includes multiple timestamps per line, fractional seconds, header offsets, blank lines and plain text. Plain text stays untimed.
+- Positive offsets show lyrics earlier. Offsets are saved by title, artist, album and duration.
+- Candidate records are cached for seven days. The app rechecks stored automatic choices and offline fallback records. For HTTP 429 or 503 it honors `Retry-After` rather than retrying every tick.
+- Automatic matches require matching title and artist, duration within five seconds, and lyric timestamps no more than three seconds past the end. Titles retain version markers such as “live” and “remix.” Album matches take priority. A timing conflict across four unique matching lines triggers a warning.
+- A conflicting manual choice stays visible with a warning and is excluded from automatic preferences. Imported lyrics apply to the active track for the session. Rechecking fetches new candidates. **Use Automatic Selection** clears the saved version and offset for that track.
+- The extension sends a heartbeat roughly every 500 ms. It expires after three seconds. A monotonic clock follows pauses, seeks and track changes. Interpolation from whole-second readings stops one second beyond the last reading. Double-click a line to seek when the timeline supports it.
+- The audio path adds elapsed time since the sample started to the Shazam offset. Results expire after 35 seconds. Silence holds the clock, while audible output alone cannot identify the track. Audio metadata cannot establish precise pause, seek, track-change or playback-speed behavior, especially with mixed sounds. The UI marks this position as **estimated**.
+- Metadata and timestamp agreement do not measure vocal alignment. Real vocal synchronization remains untested. The Windows session verified Discord output capture and recognition of two tracks. [Validation details](VALIDATION.md)
 
-## Privasi dan audio
+## Privacy and audio
 
-GUI tidak menerima aktivasi audio lewat argumen CLI atau preferensi tersimpan. Hanya tombol
-manual dan persetujuan dialog yang bisa memulai capture. WASAPI memilih loopback
-untuk output default; perangkat yang bukan loopback ditolak tanpa fallback mic.
-Mengganti perangkat output saat aktif mungkin memerlukan Matikan lalu aktifkan lagi.
+The GUI accepts audio activation only from the manual control and confirmation dialog. CLI arguments and saved settings cannot start capture. WASAPI selects the loopback endpoint for the default output and rejects non-loopback devices without opening a microphone. After changing output devices, you may need to stop and restart audio recognition.
 
-Cuplikan 12 detik float PCM di-downmix/resample ke mono PCM16 44100 Hz dalam RAM,
-dienkode sebagai WAV di RAM, lalu dikirim ke stdin `LirisWorker.exe`. Worker memakai
-implementasi bersama `backend/shazamio_worker.py` dan ShazamIO 0.9.0. Audio tidak
-ditulis ke file oleh aplikasi. Signature pengenalan dikirim ke layanan Shazam;
-ShazamIO adalah API tidak resmi. Output percakapan juga dapat ikut dianalisis.
+A 12-second float PCM sample is downmixed and resampled to 44,100 Hz mono PCM16, encoded as WAV in RAM, and passed to `LirisWorker.exe` via stdin. The worker uses the shared `backend/shazamio_worker.py` and ShazamIO 0.9.0. The app writes no audio files. Recognition sends a signature to Shazam through the unofficial ShazamIO API. Conversations played through the output can be included in the analysis.
 
-Satu worker aktif, silence gate, jeda request, timeout, epoch sesi dan epoch prioritas
-extension membatasi pekerjaan. Extension bermain/iklan membatalkan worker dan
-mengosongkan buffer; capture masih aktif dan indikator tetap aktif sampai dimatikan.
-Matikan membatalkan hasil antrean, membunuh worker dan menutup stream. Status
-Menghentikan tetap ditampilkan selama penghentian berlangsung.
+Only one worker runs at a time. A silence gate, request interval, timeout, session epoch and extension-priority epoch bound the work. Active extension playback or an ad cancels the worker and clears the buffer. Capture continues and its indicator stays active until stopped. **Stop Audio** invalidates queued results, terminates the worker and closes the stream. **Stopping** remains visible until shutdown completes.
 
-Cache lirik/pengaturan/metadata browser berada di `%LOCALAPPDATA%\Liris`.
-LRCLIB menerima judul/artis/durasi atau query pencarian. Tidak ada telemetry.
-Native host memvalidasi origin extension dan ukuran frame, tidak menyimpan cookie,
-dan membatasi command ke lagu yang sama serta heartbeat segar. Session di-scope per
-port agar tab ID dua browser tidak bertabrakan.
+Lyrics, settings and browser metadata are stored under `%LOCALAPPDATA%\Liris`. LRCLIB receives title, artist and duration or a search query. The app has no telemetry. The native host checks extension origin and frame size, stores no cookies, and routes commands only for the same track with a fresh heartbeat. Sessions are scoped per port so identical tab IDs in two browsers cannot collide.
 
-## Build untuk pengembang
+## Build for development
 
-Python **3.13 x64**, Windows, koneksi untuk mengunduh wheel:
+Use Windows with **64-bit Python 3.13** and a connection to download wheels:
 
 ```powershell
 cd windows
 .\build.ps1
 ```
 
-`requirements.lock` mem-pin dependensi Windows, termasuk seluruh dependensi backend
-yang dipakai Mac. PyInstaller membangun GUI, native host dan worker terpisah yang
-berbagi runtime; `package.py` menyertakan inventaris dan lisensi upstream dalam ZIP.
-Qt memakai DLL terpisah; sumber Qt dan ketentuan LGPL tersedia di
-https://code.qt.io/cgit/pyside/pyside-setup.git/ dan https://www.qt.io/licensing/.
-Tidak ada build step yang membuka capture atau memanggil Shazam recognition.
+`requirements.lock` pins the Windows dependencies, including the shared backend dependencies used on Mac. PyInstaller builds the GUI, native host and worker as three executables sharing one runtime. `package.py` includes an inventory and upstream license notices in the ZIP. Qt uses separate DLLs. [Qt for Python source](https://code.qt.io/cgit/pyside/pyside-setup.git/) · [Qt licensing](https://www.qt.io/licensing/)
+
+The build does not start capture or call Shazam recognition.
 
 ```powershell
 .venv\Scripts\python.exe -m unittest discover -s tests -v
@@ -113,20 +61,12 @@ Tidak ada build step yang membuka capture atau memanggil Shazam recognition.
 .venv\Scripts\python.exe verify_package.py
 ```
 
-`verify_package.py` menguji bundle dengan PATH tanpa Python, direktori kerja lain,
-UI startup/reconnect/overlay, worker `--check` (import saja), serta pertukaran native
-messaging menggunakan fixture sintetis. Tidak merekam atau mengirim audio.
+`verify_package.py` runs the bundle with a PATH that excludes Python and a different working directory. It checks UI startup, reconnect, the overlay, worker imports (`--check`), and native messaging with synthetic fixtures. It neither records nor sends audio. [Validation results and outstanding live tests](VALIDATION.md) · [Architecture](ARCHITECTURE.md)
 
-Lihat [VALIDATION.md](VALIDATION.md) untuk status bukti, batasan, dan pengujian nyata
-yang masih perlu dilakukan dengan izin pengguna. Arsitektur: [ARCHITECTURE.md](ARCHITECTURE.md).
-
-Probe developer `live_audio_probe.py` terpisah dari aplikasi dan tidak masuk paket,
-startup, build atau CI. Hanya jalankan sesudah izin eksplisit sesi capture/signature:
+The developer probe `live_audio_probe.py` runs separately from the app, package, startup, build and CI. Use it only with explicit consent for system-output capture and signature transmission in the current session:
 
 ```powershell
 .venv\Scripts\python.exe live_audio_probe.py --consent-system-output --recognize --seconds 45 --report .test-data/live.json
 ```
 
-Tanpa `--recognize`, probe hanya mengukur output loopback dan menahan worker. Laporan
-berisi metrik dan metadata hasil, tidak menyimpan sampel audio. Probe memakai capture
-engine source dengan `LirisWorker.exe` paket; jangan menyebutnya uji GUI paket.
+Without `--recognize`, the probe measures loopback output and suppresses the worker. Its report contains metrics and result metadata and saves no audio samples. It exercises the source capture engine with the packaged `LirisWorker.exe`. Testing the packaged GUI is a separate step.

@@ -40,12 +40,12 @@ import CryptoKit
     }
 
     @Test func testMatchingRejectsDifferentArtistAndLiveVersion() {
-        let wrongArtist = LyricsRecord(id: 1, trackName: "Hujan", artistName: "Other", duration: 200, syncedLyrics: "[00:01]Wrong")
-        let live = LyricsRecord(id: 2, trackName: "Hujan", artistName: "Banda", duration: 265, syncedLyrics: "[00:01]Live")
-        let plain = LyricsRecord(id: 3, trackName: "Hujan", artistName: "Banda", duration: 200, plainLyrics: "Words")
-        let synced = LyricsRecord(id: 4, trackName: "HUJAN", artistName: "Bánda", duration: 202, syncedLyrics: "[00:01]Right")
-        #expect(LyricsMatcher.best(in: [wrongArtist, live, plain, synced], title: "Hujan", artist: "Banda", duration: 200)?.id == 4)
-        expectNil(LyricsMatcher.best(in: [wrongArtist, live], title: "Hujan", artist: "Banda", duration: 200))
+        let wrongArtist = LyricsRecord(id: 1, trackName: "Rain", artistName: "Other", duration: 200, syncedLyrics: "[00:01]Wrong")
+        let live = LyricsRecord(id: 2, trackName: "Rain", artistName: "Banda", duration: 265, syncedLyrics: "[00:01]Live")
+        let plain = LyricsRecord(id: 3, trackName: "Rain", artistName: "Banda", duration: 200, plainLyrics: "Words")
+        let synced = LyricsRecord(id: 4, trackName: "RAIN", artistName: "Bánda", duration: 202, syncedLyrics: "[00:01]Right")
+        #expect(LyricsMatcher.best(in: [wrongArtist, live, plain, synced], title: "Rain", artist: "Banda", duration: 200)?.id == 4)
+        expectNil(LyricsMatcher.best(in: [wrongArtist, live], title: "Rain", artist: "Banda", duration: 200))
     }
 
     @Test func testTimeFormattingIsSafe() {

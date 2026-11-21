@@ -79,7 +79,7 @@ def register(host_exe, extension_folder):
     import winreg
     host_exe = Path(host_exe).resolve()
     if not host_exe.is_file():
-        raise FileNotFoundError('LirisBridge.exe belum tersedia. Jalankan paket hasil build.')
+        raise FileNotFoundError('LirisBridge.exe is missing. Run Liris from its built package.')
     origin = 'chrome-extension://' + extension_id(extension_folder) + '/'
     manifest_path = data_dir() / 'NativeMessaging' / (HOST + '.json')
     atomic_json(manifest_path, {'name': HOST, 'description': 'Liris Windows playback bridge',

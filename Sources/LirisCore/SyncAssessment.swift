@@ -45,31 +45,31 @@ public struct LyricsResolution: Codable, Sendable {
 public enum SyncAssessment {
     public static func assess(_ record: LyricsRecord, for track: TrackSignature) -> LyricsAssessment {
         var failures: [String] = [], warnings: [String] = []
-        if LyricsMatcher.normalized(record.trackName) != LyricsMatcher.normalized(track.title) { failures.append("Judul versi lirik berbeda dari lagu.") }
-        if LyricsMatcher.normalized(record.artistName) != LyricsMatcher.normalized(track.artist) { failures.append("Artis versi lirik berbeda dari pemutar.") }
-        if !record.duration.isFinite || record.duration < 0 { failures.append("Durasi versi lirik tidak valid.") }
-        if track.duration > 0 && record.duration > 0 && abs(record.duration - track.duration) > 5 { failures.append("Durasi versi lirik berbeda lebih dari 5 detik.") }
-        if record.duration == 0 { warnings.append("Durasi versi lirik belum tersedia.") }
-        if !record.timingFits(duration: track.duration) { failures.append("Timestamp lirik melewati akhir lagu.") }
+        if LyricsMatcher.normalized(record.trackName) != LyricsMatcher.normalized(track.title) { failures.append("The lyrics title differs from the track title.") }
+        if LyricsMatcher.normalized(record.artistName) != LyricsMatcher.normalized(track.artist) { failures.append("The lyrics artist differs from the player’s artist.") }
+        if !record.duration.isFinite || record.duration < 0 { failures.append("This lyrics version has an invalid duration.") }
+        if track.duration > 0 && record.duration > 0 && abs(record.duration - track.duration) > 5 { failures.append("The duration of this lyrics version differs by more than 5 seconds.") }
+        if record.duration == 0 { warnings.append("The duration of this lyrics version is unknown.") }
+        if !record.timingFits(duration: track.duration) { failures.append("A lyric timestamp falls beyond the end of the song.") }
         let wantedVersion = versionHints(track.title + " " + track.album)
         let foundVersion = versionHints(record.trackName + " " + (record.albumName ?? ""))
         if wantedVersion != foundVersion && (!wantedVersion.isEmpty || !foundVersion.isEmpty) {
-            failures.append("Penanda versi live, remix, atau akustik tidak sesuai.")
+            failures.append("The live, remix, or acoustic version label differs.")
         }
         let lines = record.lines.filter { !$0.text.isEmpty }
         if !record.instrumental && lines.isEmpty && (record.plainLyrics ?? "").trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
-            failures.append("Versi ini tidak memiliki isi lirik.")
+            failures.append("This version contains no lyrics.")
         }
         if let raw = record.syncedLyrics, !raw.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty, lines.isEmpty {
-            failures.append("Lirik bertimestamp tidak dapat dibaca.")
+            failures.append("The timed lyrics could not be read.")
         }
-        if record.instrumental && !lines.isEmpty { failures.append("Metadata instrumental bertentangan dengan isi lirik.") }
-        if !record.instrumental && lines.isEmpty { warnings.append("Lirik ini belum memiliki timestamp untuk sinkronisasi otomatis.") }
-        if track.duration == 0 { warnings.append("Durasi pemutar belum tersedia; versi lirik belum dapat dipastikan.") }
-        if !lines.isEmpty && lines.count < 3 && track.duration > 60 { warnings.append("Timestamp sangat sedikit untuk durasi lagu ini.") }
+        if record.instrumental && !lines.isEmpty { failures.append("The instrumental tag conflicts with the lyrics.") }
+        if !record.instrumental && lines.isEmpty { warnings.append("These lyrics have no timestamps for automatic sync.") }
+        if track.duration == 0 { warnings.append("The player has not reported a duration. The lyrics version is uncertain.") }
+        if !lines.isEmpty && lines.count < 3 && track.duration > 60 { warnings.append("This version has very few timestamps for the length of the song.") }
         if lines.count >= 8 {
             let unique = Set(lines.map { Int(($0.time * 10).rounded()) }).count
-            if Double(unique) / Double(lines.count) < 0.5 { warnings.append("Banyak baris berbagi timestamp yang sama.") }
+            if Double(unique) / Double(lines.count) < 0.5 { warnings.append("Many lines share the same timestamp.") }
         }
         let albumMatch = !track.album.isEmpty && LyricsMatcher.normalized(record.albumName ?? "") == LyricsMatcher.normalized(track.album)
         let score = (record.hasSync || record.instrumental ? 100.0 : 0) + (albumMatch ? 35 : 0)
@@ -91,12 +91,12 @@ public enum SyncAssessment {
         let preferred = preferredID.flatMap { id in ranked.first { $0.0.id == id } }
         guard let chosen = preferred ?? ranked.first else {
             return LyricsResolution(record: nil, alternatives: [], confidence: .incompatible,
-                reasons: ["Belum ada versi lirik yang cocok dengan judul, artis, dan waktu lagu."], comparedVersions: comparedVersions)
+                reasons: ["No lyrics version matches the title, artist, and track timing."], comparedVersions: comparedVersions)
         }
         var reasons = chosen.1.reasons
         let hasConflict = preferred == nil && ranked.contains { $0.0.id != chosen.0.id && timingDisagrees(chosen.0, $0.0) }
-        if hasConflict { reasons.append("Beberapa versi memiliki timing berbeda. Ketepatan terhadap vokal belum dapat dipastikan.") }
-        if !comparedVersions { reasons.append("Versi alternatif belum dapat dibandingkan; memakai lirik yang tersedia.") }
+        if hasConflict { reasons.append("Available versions have different timing. Alignment with the vocals is uncertain.") }
+        if !comparedVersions { reasons.append("Couldn’t compare alternate versions. Using the available lyrics.") }
         return LyricsResolution(record: chosen.0, alternatives: ranked.map(\.0),
             confidence: reasons.isEmpty ? .compatible : .uncertain, reasons: reasons,
             comparedVersions: comparedVersions, savedChoice: preferred != nil)

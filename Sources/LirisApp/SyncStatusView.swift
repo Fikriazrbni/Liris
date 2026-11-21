@@ -13,30 +13,30 @@ struct SyncStatusView: View {
                 Text(model.syncExplanation).font(.system(size: 10)).foregroundStyle(Palette.muted)
                     .lineSpacing(3).lineLimit(3).fixedSize(horizontal: false, vertical: true)
                 if abs(model.offset) > 0.05 {
-                    Text(String(format: "Koreksi tersimpan: %+.1f detik", model.offset)).font(.system(size: 9)).foregroundStyle(Palette.muted)
+                    Text(String(format: "Saved adjustment: %+.1f s", model.offset)).font(.system(size: 9)).foregroundStyle(Palette.muted)
                 }
             }.frame(maxWidth: .infinity, alignment: .leading)
             VStack(alignment: .trailing, spacing: 10) {
                 if let alternatives = model.lyricsResolution?.alternatives, alternatives.count > 1 {
-                    Menu("Versi lain") {
+                    Menu("Other Versions") {
                         ForEach(Array(alternatives.enumerated()), id: \.element.id) { index, record in
                             Button {
                                 model.select(record)
                             } label: {
-                                Text("\(record.id == model.record?.id ? "✓ " : "")Versi \(index + 1) · \(record.albumName?.isEmpty == false ? record.albumName! : record.trackName) · \(TimeLabel.format(record.duration)) · awal lirik \(TimeLabel.format(record.lines.first(where: { !$0.text.isEmpty })?.time ?? 0))")
+                                Text("\(record.id == model.record?.id ? "✓ " : "")Version \(index + 1) · \(record.albumName?.isEmpty == false ? record.albumName! : record.trackName) · \(TimeLabel.format(record.duration)) · first lyric \(TimeLabel.format(record.lines.first(where: { !$0.text.isEmpty })?.time ?? 0))")
                             }
                         }
                         if model.lyricsResolution?.savedChoice == true {
                             Divider()
-                            Button("Gunakan pilihan otomatis") { model.useAutomaticLyrics() }
+                            Button("Use Automatic Match") { model.useAutomaticLyrics() }
                         }
                     }.font(.system(size: 10)).menuStyle(.borderlessButton).fixedSize()
                 }
                 if model.connected {
                     Button { model.loadLyrics(forceRefresh: true) } label: {
-                        Label("Periksa ulang", systemImage: "arrow.clockwise").font(.system(size: 9))
+                        Label("Check Again", systemImage: "arrow.clockwise").font(.system(size: 9))
                     }.buttonStyle(.plain).foregroundStyle(Palette.muted).disabled(model.loading)
-                        .help("Ambil ulang dan bandingkan versi lirik. Memerlukan internet.")
+                        .help("Fetch and compare lyrics versions again. Internet access is required.")
                 }
             }
         }.padding(12).background(color.opacity(0.045), in: RoundedRectangle(cornerRadius: 10))

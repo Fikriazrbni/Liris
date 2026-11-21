@@ -24,17 +24,17 @@ class LyricsClient:
     def request(self, path, params):
         with self.lock:
             if time.time() < self.cooldown:
-                raise ValueError('LRCLIB sedang membatasi permintaan. Coba lagi nanti.')
+                raise ValueError('LRCLIB is limiting requests. Try again later.')
         url = self.base + path + '?' + urllib.parse.urlencode(params)
         request = urllib.request.Request(url, headers={'User-Agent': 'LirisWindows/0.1 (+https://github.com/Fikriazrbni/Liris)',
                                                        'Accept': 'application/json'})
         try:
             with self.opener(request, timeout=12) as response:
                 if 'application/json' not in response.headers.get('Content-Type', '').lower():
-                    raise ValueError('LRCLIB tidak mengembalikan JSON')
+                    raise ValueError('LRCLIB did not return JSON')
                 body = response.read(4_000_001)
                 if len(body) > 4_000_000:
-                    raise ValueError('Respons LRCLIB terlalu besar')
+                    raise ValueError('The LRCLIB response is too large')
                 return json.loads(body)
         except urllib.error.HTTPError as error:
             if error.code == 404:
@@ -55,7 +55,7 @@ class LyricsClient:
     def search(self, query):
         result = self.request('/search', {'q': query})
         if not isinstance(result, list):
-            raise ValueError('Format pencarian LRCLIB tidak valid')
+            raise ValueError('Unexpected LRCLIB search result format')
         return [x for x in result[:32] if valid_candidate(x)]
 
     def resolve(self, track, force=False):
@@ -65,7 +65,7 @@ class LyricsClient:
         if not isinstance(candidates, list):
             candidates = []
         candidates = [c for c in candidates if valid_candidate(c)]
-        status = 'Cache; kecocokan vokal belum terbukti'
+        status = 'Cached lyrics. Vocal timing is unverified'
         if force or not candidates or time.time() - local.get('comparedAt', 0) > 7 * 86400:
             errors = []
             exact = None
@@ -94,23 +94,23 @@ class LyricsClient:
                 candidates = list(unique.values())[:32]
                 local = self.store.update_track(key, {'candidates': candidates,
                                                      'comparedAt': time.time() if search_succeeded else 0})
-                status = ('Metadata/durasi diperiksa' if track.get('duration', 0) > 0
-                          else 'Metadata diperiksa; durasi pemutar belum diketahui') + '; kecocokan vokal belum terbukti'
+                status = ('Metadata and duration checked' if track.get('duration', 0) > 0
+                          else 'Metadata checked. Player duration is unknown') + '. Vocal timing is unverified'
                 if errors:
-                    status += ' — pemeriksaan sebagian: ' + '; '.join(errors)
+                    status += ' — partial check: ' + '; '.join(errors)
             else:
-                status = 'Offline/error: ' + '; '.join(errors) + '; memakai cache bila cocok'
+                status = 'Offline/error: ' + '; '.join(errors) + '. Using matching cached lyrics if available'
         safe = [c for c in candidates if not assess(c, track)]
         safe.sort(key=lambda c: (normalized(c.get('albumName') or '') != normalized(track.get('album', '')),
                                  abs(c.get('duration', 0) - track.get('duration', 0))))
         chosen = next((c for c in safe if c.get('id') == local.get('choice')), safe[0] if safe else None)
         if chosen is None and track.get('origin') == 'audio':
-            unverified = [c for c in candidates if assess(c, track) == ['durasi belum dapat diverifikasi']]
+            unverified = [c for c in candidates if assess(c, track) == ['duration unverified']]
             if unverified:
                 chosen = unverified[0]
-                status += ' — AUDIO: durasi/versi belum terverifikasi, posisi perkiraan'
+                status += ' — Audio recognition: duration and version unverified, position estimated'
         if timing_conflict(safe):
-            status += ' — KONFLIK TIMING antar versi'
+            status += ' — Timing differs between versions'
         if not chosen:
-            status += ' — tidak ada versi aman; cari atau impor secara manual'
+            status += ' — No matching version. Search for lyrics or import a file'
         return chosen, candidates, status

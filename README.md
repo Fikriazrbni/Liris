@@ -1,95 +1,97 @@
 <p align="center">
-  <img src="windows/assets/liris.png" alt="Ikon Liris" width="72">
+  <img src="windows/assets/liris.png" alt="Liris icon" width="72">
 </p>
 
 <h1 align="center">Liris</h1>
 
-<p align="center">Lirik yang mengikuti musikmu di macOS dan Windows, langsung di aplikasi atau lewat overlay.</p>
+<p align="center">Follow the lyrics on Mac or Windows, in the app or in a floating overlay that stays visible when you switch windows.</p>
 
 <p align="center">
-  <a href="#unduh">Unduh</a> ·
-  <a href="#mulai-pakai">Mulai pakai</a> ·
-  <a href="#fitur">Fitur</a> ·
-  <a href="#tampilan">Tampilan</a> ·
-  <a href="#dokumentasi">Dokumentasi</a>
+  <a href="#downloads">Downloads</a> ·
+  <a href="#getting-started">Getting started</a> ·
+  <a href="#features">Features</a> ·
+  <a href="#screenshots">Screenshots</a> ·
+  <a href="#documentation">Documentation</a>
 </p>
 
 <p align="center">
-  <img src="docs/liris-demo-preview.gif" alt="Cuplikan Liris menampilkan lirik sinkron dan overlay saat simulasi pindah aplikasi" width="720">
+  <img src="docs/liris-demo-preview.gif" alt="Liris follows the demo song, then shows its lyrics over a simulated switch to a notes window" width="720">
 </p>
 
-## Unduh
+## Downloads
 
-| Platform | Paket | Catatan rilis |
+| Platform | Download | Release notes |
 | --- | --- | --- |
-| macOS 14+ · Apple Silicon | [Unduh ZIP untuk Mac](https://github.com/Fikriazrbni/Liris/releases/download/v0.4.7/Liris-v0.4.7-macos-arm64.zip) | [v0.4.7](https://github.com/Fikriazrbni/Liris/releases/tag/v0.4.7) |
-| Windows 11 · x64 | [Unduh installer Windows](https://github.com/Fikriazrbni/Liris/releases/download/windows-v0.1.0/Liris-Setup-Windows-x64.exe) | [Preview v0.1.0](https://github.com/Fikriazrbni/Liris/releases/tag/windows-v0.1.0) |
+| macOS 14+ · Apple Silicon | [Mac ZIP](https://github.com/Fikriazrbni/Liris/releases/download/v0.4.7/Liris-v0.4.7-macos-arm64.zip) | [v0.4.7](https://github.com/Fikriazrbni/Liris/releases/tag/v0.4.7) |
+| Windows 11 · x64 | [Windows installer](https://github.com/Fikriazrbni/Liris/releases/download/windows-v0.1.0/Liris-Setup-Windows-x64.exe) | [Preview v0.1.0](https://github.com/Fikriazrbni/Liris/releases/tag/windows-v0.1.0) |
 
-Python dan ShazamIO sudah disertakan di kedua paket. Build Mac belum dinotariskan oleh Apple dan installer Windows belum ditandatangani.
+Both packages include Python and ShazamIO. The Mac build is ad hoc signed and has not been notarized by Apple. The Windows installer is unsigned. The downloads above predate the English interface shown here.
 
-### Homebrew untuk Mac
+### Homebrew on Mac
 
 ```sh
 brew install --cask fikriazrbni/tap/liris
 ```
 
-Jika Liris sudah terpasang lewat Homebrew, jalankan perintah berikut untuk memperbaruinya. [Tap Homebrew](https://github.com/Fikriazrbni/homebrew-tap)
+To upgrade an existing installation, quit Liris and run the following commands. [Homebrew tap](https://github.com/Fikriazrbni/homebrew-tap)
 
 ```sh
 brew update
 brew upgrade --cask fikriazrbni/tap/liris
 ```
 
-## Mulai pakai
+## Getting started
 
-**Buka Liris.** Untuk unduhan ZIP di Mac, ekstrak lalu pindahkan **Liris.app** ke **Applications**. Di Windows, jalankan installer lalu buka **Liris** dari menu Start.
+**On Mac**, extract the ZIP, move **Liris.app** to **Applications**, and open it. From v0.4.7 onward, Liris starts in the menu bar with its main window closed. Click the three-line icon near the clock and choose **Open Liris**. The same action restores a minimized window. While audio recognition is active, a recording indicator takes the icon’s place.
 
-Mulai v0.4.7 di Mac, Liris langsung berjalan di menu bar dengan jendela tertutup. Klik ikon tiga baris di dekat jam (atau indikator rekam saat audio aktif), lalu pilih **Buka Liris**. Pilihan itu juga mengembalikan jendela yang diminimalkan. Liris tersembunyi dari Dock dan ⌘ Tab. Menutup jendela membiarkan koneksi dan overlay tetap berjalan. Untuk berhenti sepenuhnya, pilih **Keluar** dari menu yang sama.
+Liris stays out of the Dock and the app switcher (⌘ Tab). Closing its window keeps the player connection and overlay running. Choose **Quit** from the menu bar to stop the app.
 
-### YouTube dan YouTube Music
+**On Windows**, run the installer and open **Liris** from the Start menu.
 
-1. Buka **Panduan koneksi → Buka extension dan Brave** di Mac, atau **Bantuan → Setup extension Windows** di Windows.
-2. Di halaman Extensions browser, aktifkan **Developer mode**, klik **Load unpacked**, lalu pilih folder yang dibuka Liris.
-3. Muat ulang tab musik. Di Mac, Liris langsung mencoba terhubung ke sumber terakhir saat dibuka. Untuk extension, pilih **Auto**. Kalau koneksinya terputus, klik **Hubungkan** di jendela Liris atau dari ikon di menu bar. Di Windows, klik **Hubungkan**.
+### YouTube and YouTube Music
 
-### Discord dan aplikasi lain
+1. On Mac, open **Connection Guide → Open Extension and Brave**. On Windows, choose **Help → Set Up Extension**. Liris opens the extension folder for you.
+2. On your browser’s Extensions page, enable **Developer mode**, click **Load unpacked**, and select that folder.
+3. Reload the music tab. On Mac, Liris tries to reconnect to the last player when it starts. Choose **Auto** to use the extension. If disconnected, click **Connect** in the main window or menu bar. On Windows, click **Connect** in the app.
 
-Setelah terhubung, klik **Aktifkan audio** untuk mengenali lagu dari output sistem. Klik **Matikan audio** untuk berhenti. Posisi lirik dari pengenalan audio bersifat perkiraan.
+### Discord and other apps
 
-## Fitur
+Connect to the player, then click **Enable Audio** to identify music playing through your system output. Click **Stop Audio** when you’re done. With audio recognition, lyric timing is an estimate.
 
-- **Lirik tersinkron** mengikuti posisi YouTube dan YouTube Music lewat extension browser.
-- **Overlay mengambang** menampilkan judul lagu serta baris sebelumnya, aktif, dan berikutnya. Warna, ukuran teks, dan opasitas bisa diatur. Di Mac, header juga menampilkan artis jika tersedia, dan ikon gembok bisa diklik untuk mengunci atau membuka kunci langsung.
-- **Pencarian lirik** memakai LRCLIB, dengan pilihan versi, impor LRC, dan koreksi waktu per lagu. Lirik yang tersimpan di cache bisa dibuka saat offline.
+## Features
 
-## Tampilan
+- **Synced lyrics** follow the playback position reported by YouTube or YouTube Music through the browser extension.
+- **Floating overlay** shows the song title and the previous, current, and next lines. Adjust the highlight color, text size, and opacity. On Mac, the header also shows the artist when available. Click the padlock to lock or unlock the overlay.
+- **Lyrics search** finds songs on LRCLIB. Pick a different version or import a timed LRC file. Cached lyrics are available offline.
 
-Kedua screenshot diambil dari Liris Mac v0.4.4 dalam mode demo.
+## Screenshots
+
+Both screenshots show the Mac app in demo mode using original lyrics.
 
 <p align="center">
-  <img src="docs/main-v0.4.4.png" alt="Jendela utama Liris dengan lirik tersinkron dan panel pengaturan" width="800"><br>
-  <sub>Jendela utama</sub>
+  <img src="docs/main.png" alt="Liris main window with a synced lyric highlighted and appearance controls on the right" width="800"><br>
+  <sub>Main window</sub>
 </p>
 
 <p align="center">
-  <img src="docs/overlay-v0.4.4.png" alt="Overlay Liris dengan nama artis serta baris lirik sebelumnya, aktif, dan berikutnya" width="800"><br>
-  <sub>Overlay tiga baris</sub>
+  <img src="docs/overlay-three-lines.png" alt="Floating overlay with the title, artist, and three lines of lyrics" width="800"><br>
+  <sub>Three-line overlay</sub>
 </p>
 
-## Privasi
+## Privacy
 
-Pengenalan audio mati saat aplikasi dibuka atau dihubungkan ulang. Jika kamu mengaktifkannya, Liris membaca output sistem tanpa membuka mikrofon. Cuplikan berada di RAM dan fingerprint dikirim ke Shazam. Suara percakapan yang terdengar di speaker atau headphone bisa ikut dianalisis. Pencarian lirik mengirim metadata lagu atau kata kunci ke LRCLIB.
+Audio recognition is off when Liris starts or reconnects. If you enable it, Liris reads system output without opening the microphone. Audio samples stay in memory, and Liris sends fingerprints to Shazam. Conversations audible through your speakers or headphones can be included. Lyrics searches send track metadata or your search terms to LRCLIB.
 
-## Dokumentasi
+## Documentation
 
-- [Panduan macOS](docs/AUTO-SETUP.md) · [Panduan dan build Windows](windows/README.md)
-- [Arsitektur](docs/ARCHITECTURE.md) · [Pengujian macOS](docs/VALIDATION.md) · [Pengujian Windows](windows/VALIDATION.md)
-- [Semua rilis](https://github.com/Fikriazrbni/Liris/releases)
+- [Mac setup guide](docs/AUTO-SETUP.md) · [Windows setup and build guide](windows/README.md)
+- [Architecture](docs/ARCHITECTURE.md) · [Mac test notes](docs/VALIDATION.md) · [Windows test notes](windows/VALIDATION.md)
+- [All releases](https://github.com/Fikriazrbni/Liris/releases)
 
 <details>
-<summary>Build lokal di macOS</summary>
+<summary>Build locally on Mac</summary>
 
-Gunakan macOS 14+, Command Line Tools, dan uv. Tes membutuhkan Swift 6.
+Use macOS 14 or later, the Xcode Command Line Tools, and uv. The tests require Swift 6.
 
 ```sh
 ./scripts/setup-shazamio.sh
@@ -98,8 +100,8 @@ Gunakan macOS 14+, Command Line Tools, dan uv. Tes membutuhkan Swift 6.
 ./scripts/test.sh
 ```
 
-Hasil build tersedia di `dist/Liris.app`. Jalankan `./scripts/run.sh --demo` untuk demo tanpa audio.
+The build produces `dist/Liris.app`. Run `./scripts/run.sh --demo` to try the app with sample lyrics and no audio.
 
 </details>
 
-Terinspirasi oleh [FrontLine Lyrics Desktop](https://github.com/juliocax/FrontLine-Lyrics-Desktop).
+Inspired by [FrontLine Lyrics Desktop](https://github.com/juliocax/FrontLine-Lyrics-Desktop).

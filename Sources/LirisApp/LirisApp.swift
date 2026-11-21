@@ -38,7 +38,7 @@ struct LirisApp: App {
             MenuBarView(openMainWindow: { mainWindow.show(model: model) }).environmentObject(model)
         } label: {
             if model.audioActivity.isEngaged {
-                Label("Liris · Audio aktif", systemImage: "record.circle.fill")
+                Label("Liris · Audio On", systemImage: "record.circle.fill")
             } else {
                 Image(nsImage: LirisMark.image).accessibilityLabel("Liris")
             }
@@ -46,19 +46,19 @@ struct LirisApp: App {
         .menuBarExtraStyle(.menu)
         .commands {
             CommandGroup(replacing: .newItem) {}
-            CommandMenu("Lirik") {
-                Button("Cari lirik") { model.section = .search }.keyboardShortcut("f")
-                Button("Impor file LRC…") { model.importLRC() }.keyboardShortcut("o")
+            CommandMenu("Lyrics") {
+                Button("Find Lyrics") { model.section = .search }.keyboardShortcut("f")
+                Button("Import LRC File…") { model.importLRC() }.keyboardShortcut("o")
                 Divider()
-                Button(model.overlayVisible ? "Sembunyikan overlay" : "Tampilkan overlay") { model.toggleOverlay() }
+                Button(model.overlayVisible ? "Hide Overlay" : "Show Overlay") { model.toggleOverlay() }
                     .keyboardShortcut("l", modifiers: [.command, .shift])
-                Button(model.overlayLocked ? "Buka kunci overlay" : "Kunci overlay") {
+                Button(model.overlayLocked ? "Unlock Overlay" : "Lock Overlay") {
                     model.overlayLocked.toggle(); model.overlayController.updateLock()
                 }
                 Divider()
-                Button("Majukan lirik 0,2 detik") { model.offset = min(10, model.offset + 0.2) }
+                Button("Advance lyrics by 0.2 seconds") { model.offset = min(10, model.offset + 0.2) }
                     .keyboardShortcut(.rightArrow, modifiers: [.command, .option])
-                Button("Mundurkan lirik 0,2 detik") { model.offset = max(-10, model.offset - 0.2) }
+                Button("Delay lyrics by 0.2 seconds") { model.offset = max(-10, model.offset - 0.2) }
                     .keyboardShortcut(.leftArrow, modifiers: [.command, .option])
             }
         }
@@ -114,29 +114,29 @@ struct MenuBarView: View {
     let openMainWindow: () -> Void
 
     var body: some View {
-        Button("Buka Liris", action: openMainWindow)
+        Button("Open Liris", action: openMainWindow)
         Divider()
-        Text(model.hasTrack ? model.title : "Menunggu musikmu")
+        Text(model.hasTrack ? model.title : "Waiting for music")
         Text(model.hasTrack ? model.currentText : model.status)
         ConnectionButton()
         Divider()
         Text(model.audioActivity.headline)
         if model.audioActivity.isEngaged {
-            Button("Matikan audio") { model.stopAudioRecognition() }
+            Button("Stop Audio") { model.stopAudioRecognition() }
                 .disabled(model.audioActivity.phase == .stopping)
         } else {
-            Button("Aktifkan audio") { model.enableAudioRecognition() }
+            Button("Enable Audio") { model.enableAudioRecognition() }
                 .disabled(!model.canStartAudioRecognition)
         }
         Divider()
-        Button(model.overlayVisible ? "Sembunyikan overlay" : "Tampilkan overlay") { model.toggleOverlay() }
+        Button(model.overlayVisible ? "Hide Overlay" : "Show Overlay") { model.toggleOverlay() }
         if model.overlayVisible {
-            Button(model.overlayLocked ? "Buka kunci overlay" : "Kunci overlay") {
+            Button(model.overlayLocked ? "Unlock Overlay" : "Lock Overlay") {
                 model.overlayLocked.toggle(); model.overlayController.updateLock()
             }
         }
         Divider()
-        Button("Keluar") { NSApp.terminate(nil) }
+        Button("Quit") { NSApp.terminate(nil) }
     }
 }
 

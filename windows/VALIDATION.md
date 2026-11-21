@@ -14,7 +14,7 @@ Mac implementation, release v0.4.3 assets and Homebrew remain unchanged.
 | Sync pause/seek/song change | Monotonic clock, heartbeat expiry, bounded quantized timing, stale-result cancellation | Synthetic UI/clock tests; real player/vocal synchronization NOT tested |
 | Version/duration matching | Exact normalized title/artist, duration bounds, timestamps, album preference, unique-line timing conflict warning | Unit fixtures; unknown audio duration explicitly unverified |
 | Overlay and tray | Topmost resizable window, font/color/opacity, click-through, tray unlock/stop | Qt render and native extended-style assertions; manual multi-display/fullscreen usability pending |
-| Clear audio indicator / Stop | Main/overlay/tray, orange active/stopping, explicit Stop | Real probe stop 0.197 s; packaged GUI Stop returned to Audio Mati; active tray/overlay stop still pending |
+| Clear audio indicator / Stop | Main/overlay/tray, orange active/stopping, explicit Stop | Real probe stop 0.197 s; packaged GUI Stop returned to Audio Off; active tray/overlay stop still pending |
 | Audio off on startup/Connect/reconnect | No persisted activation or activation CLI; explicit dialog Yes only | UI tests and packaged startup/reconnect smoke |
 | Standalone package | Portable ZIP with Python/Qt/WASAPI/ShazamIO, three executables and license notices | Local build and packaged verification; clean machine/SmartScreen/signing pending |
 
@@ -86,11 +86,10 @@ endpoint was **Speakers (FxSound Audio Enhancer) [Loopback]**, stereo, 48000 Hz,
 2. Probe Stop completed in **0.197 seconds**; capture thread and worker had both
    exited, and enabled was false. Metrics are in `.test-data/live-discord-1.json`.
    The probe never writes WAV/PCM files; only this JSON report is persisted.
-3. The actual packaged GUI was opened. Startup and Connect showed **Audio Mati**.
+3. The actual packaged GUI was opened. Startup and Connect showed **Audio Off**.
    Its manually activated capture recognized **Starlight — Muse**; the user
    confirmed Discord had changed to that song. The active indicator and approximate
-   clock were observed through Windows accessibility state. Clicking **Matikan
-   audio** showed Menghentikan then **Audio Mati**. A subsequent Connect remained off.
+   clock were observed through Windows accessibility state. Clicking **Stop Audio** showed Stopping, then **Audio Off**. A subsequent Connect remained off.
 4. Automatic lyric retrieval in that GUI session hit a **TLS handshake timeout**.
    A later manual search from the same package returned **20 candidates**. A direct
    real LRCLIB resolve for the recognized metadata then returned **21 candidates**,
@@ -135,7 +134,7 @@ application. No Windows media-session adapter is included yet.
 
 ## Next live acceptance steps
 
-1. Launch the package, confirm Audio Mati; Connect and reconnect must keep it off.
+1. Launch the package, confirm Audio Off; Connect and reconnect must keep it off.
 2. Set up the existing extension; test YouTube and YouTube Music play/pause, seek
    backwards/forwards, ads, track changes, stale tabs and two browser sessions.
 3. Compare manual/LRCLIB/LRC versions and offsets with the actual player and vocals.

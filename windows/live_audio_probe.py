@@ -33,7 +33,7 @@ def main():
         if not statuses or statuses[-1]['status'] != message:
             statuses.append(entry)
             print(json.dumps(entry, ensure_ascii=True), flush=True)
-        if 'tidak ada kecocokan' in message or 'gagal' in message or 'error:' in message:
+        if 'no match' in message or 'failed' in message or 'error:' in message:
             complete.set()
     def match(epoch, result, sample_started):
         entry = dict(result, epoch=epoch, elapsed=round(time.monotonic() - started, 3),

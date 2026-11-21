@@ -4,7 +4,7 @@ import LirisCore
 import UniformTypeIdentifiers
 
 enum Section: String, CaseIterable {
-    case listening = "Sedang diputar", search = "Cari lirik", appearance = "Tampilan", help = "Panduan koneksi"
+    case listening = "Now Playing", search = "Find Lyrics", appearance = "Appearance", help = "Connection Guide"
     var symbol: String {
         switch self { case .listening: "play.circle"; case .search: "magnifyingglass"; case .appearance: "slider.horizontal.3"; case .help: "questionmark.circle" }
     }
@@ -25,7 +25,7 @@ final class AppModel: ObservableObject {
     @Published var duration: Double = 0
     @Published var playing = false
     @Published var loading = false
-    @Published var status = "Siap menemani musikmu"
+    @Published var status = "Ready to listen"
     @Published var connectionError: String?
     @Published var lyricsError: String?
     @Published var lyricsResolution: LyricsResolution?
@@ -74,32 +74,32 @@ final class AppModel: ObservableObject {
     lazy var overlayController = OverlayController(model: self)
 
     var activeIndex: Int? { LRCParser.activeIndex(in: lines, at: position, adjustment: offset) }
-    var title: String { snapshot?.title ?? record?.trackName ?? "Musik menyala.\nLirik ikut bercerita." }
-    var artist: String { snapshot?.artist ?? record?.artistName ?? (connected ? "Menunggu musik dari pemutar." : "Hubungkan pemutar untuk mulai mendengarkan.") }
+    var title: String { snapshot?.title ?? record?.trackName ?? "Play a song.\nFollow the lyrics." }
+    var artist: String { snapshot?.artist ?? record?.artistName ?? (connected ? "Waiting for music from your player." : "Connect a player to start listening.") }
     var hasTrack: Bool { snapshot != nil || record != nil }
     var canSeek: Bool { hasTrack && snapshot?.positionSource != "recognition" && snapshot?.positionSource != "extension-progress" && !(connected && source == .youtube && effectiveTimeSource != .media) }
     var syncNeedsAttention: Bool { playerTimeHealth == .waiting || playerTimeHealth == .limited || lyricsResolution?.confidence != .compatible }
     var syncHeadline: String {
-        if playerTimeHealth == .waiting { return "Menunggu waktu pemutar pulih" }
-        if !connected { return "Timer manual · belum mengikuti pemutar" }
-        if loading { return "Memeriksa kecocokan lirik…" }
-        if lyricsResolution?.confidence == .incompatible { return "Versi lirik belum cocok" }
-        if lyricsResolution?.confidence == .uncertain { return "Timing lirik perlu diperiksa" }
-        if playerTimeHealth == .recovered { return "Waktu dikoreksi otomatis" }
-        if playerTimeHealth == .limited { return "Sumber waktu terbatas" }
-        return lyricsResolution?.savedChoice == true ? "Memakai pilihan tersimpan" : "Metadata dan batas waktu cocok"
+        if playerTimeHealth == .waiting { return "Waiting for the player clock" }
+        if !connected { return "Manual timer · player disconnected" }
+        if loading { return "Checking the lyrics…" }
+        if lyricsResolution?.confidence == .incompatible { return "Lyrics version mismatch" }
+        if lyricsResolution?.confidence == .uncertain { return "Check the lyrics timing" }
+        if playerTimeHealth == .recovered { return "Timing corrected automatically" }
+        if playerTimeHealth == .limited { return "Limited timing information" }
+        return lyricsResolution?.savedChoice == true ? "Using your saved version" : "Track details and timestamps match"
     }
     var syncExplanation: String {
         if playerTimeHealth == .waiting { return playerTimeMessage }
-        if !connected { return "Hubungkan pemutar atau mulai timer bersamaan dengan musikmu." }
+        if !connected { return "Connect a player or start the manual timer when your music starts." }
         if let issue = lyricsResolution?.reasons.first { return issue }
         if playerTimeHealth == .recovered || playerTimeHealth == .limited { return playerTimeMessage }
-        if lyricsResolution?.savedChoice == true { return "Pilihan versi dan koreksi waktumu diingat untuk lagu ini." }
-        return "Kecocokan judul, artis, versi, durasi, dan timestamp diperiksa. Ketepatan vokal belum diverifikasi."
+        if lyricsResolution?.savedChoice == true { return "Liris remembers your lyrics version and timing adjustment for this track." }
+        return "Liris checks the title, artist, version, duration, and timestamps. Alignment with the vocals is unverified."
     }
     var currentText: String {
-        if connected && playerTimeHealth == .waiting { return "Menunggu waktu pemutar pulih…" }
-        guard let index = activeIndex else { return hasTrack ? "Menunggu bait pertama…" : "Musikmu, kata demi kata." }
+        if connected && playerTimeHealth == .waiting { return "Waiting for the player clock…" }
+        guard let index = activeIndex else { return hasTrack ? "Waiting for the first line…" : "Your music, word by word." }
         return lines[index].text.isEmpty ? "♪" : lines[index].text
     }
     var previousText: String {
@@ -162,7 +162,7 @@ final class AppModel: ObservableObject {
         let token = UUID(); generation = token
         let selectedSource = source, selectedBrowser = browser
         let pollPlayer = self.pollPlayer
-        status = "Menghubungkan \(selectedSource.rawValue)…"
+        status = "Connecting to \(selectedSource.rawValue)…"
         pollTask = Task { [weak self] in
             var interval = Duration.seconds(1)
             while !Task.isCancelled {
@@ -176,12 +176,12 @@ final class AppModel: ObservableObject {
                     }
                     else {
                         self.clearTrack()
-                        self.status = selectedSource == .auto ? AutoHub.shared.route : selectedSource == .youtube ? "Buka music.youtube.com di \(selectedBrowser.rawValue), lalu putar lagu." : "Buka \(selectedSource.rawValue), lalu putar lagu."
+                        self.status = selectedSource == .auto ? AutoHub.shared.route : selectedSource == .youtube ? "Open music.youtube.com in \(selectedBrowser.rawValue) and play a song." : "Open \(selectedSource.rawValue) and play a song."
                     }
                 } catch {
                     guard let self, self.generation == token, !Task.isCancelled else { return }
                     self.connectionError = error.localizedDescription
-                    self.status = "Koneksi perlu diperiksa"
+                    self.status = "Check your connection"
                     self.connected = false; self.anchor(self.position, playing: false)
                     return // Avoid repeating permission dialogs or failed requests.
                 }
@@ -199,7 +199,7 @@ final class AppModel: ObservableObject {
         AutoHub.shared.stop()
         generation = UUID(); pollTask?.cancel(); pollTask = nil
         connected = false; playing = false; demo = false
-        connectionError = nil; status = "Siap menemani musikmu"
+        connectionError = nil; status = "Ready to listen"
         if clear { clearTrack() }
     }
 
@@ -213,7 +213,7 @@ final class AppModel: ObservableObject {
 
     private func receive(_ track: TrackSnapshot) {
         if track.advertisement == true {
-            clearTrack(); status = "Iklan sedang diputar. Lirik akan kembali setelah lagu dimulai."
+            clearTrack(); status = "An ad is playing. Lyrics will return when the song starts."
             return
         }
         let newTrack = snapshot?.key != track.key
@@ -226,14 +226,14 @@ final class AppModel: ObservableObject {
             progress: track.progressPosition, visibleClock: track.clockPosition, duration: duration,
             playing: track.playing == true, mediaPlaying: track.mediaPlaying, uptime: now)
             : PlayerTimeDecision(position: track.position ?? 0, source: .media, health: track.positionSource == "recognition" ? .limited : .consistent,
-                reason: track.positionSource == "recognition" ? "Posisi diperkirakan dari cuplikan audio dan akan dikalibrasi ulang." : "Waktu pemutar tersedia.")
+                reason: track.positionSource == "recognition" ? "Position is estimated from an audio sample and adjusted as more samples arrive." : "Player timing is available.")
         playerTimeHealth = decision.health; playerTimeMessage = decision.reason; effectiveTimeSource = decision.source
         clock.update(position: decision.position ?? position, playing: decision.position != nil && track.playing == true,
                      uptime: now, wholeSeconds: decision.wholeSeconds,
                      playbackRate: track.playbackRate ?? 1)
         position = clock.position(at: now)
         playing = decision.position != nil && track.playing == true
-        status = source == .auto ? AutoHub.shared.route : decision.health == .waiting ? "Menunggu waktu pemutar pulih" : playing ? "Mengikuti \(source.rawValue)" : "Pemutaran dijeda"
+        status = source == .auto ? AutoHub.shared.route : decision.health == .waiting ? "Waiting for the player clock" : playing ? "Following \(source.rawValue)" : "Playback paused"
         let changedTrack = selectedTrackKey != track.key
         let resolvedDuration = measuredDuration > 0 && abs(measuredDuration - selectedDuration) > 2
         guard changedTrack || resolvedDuration else { return }
@@ -259,10 +259,10 @@ final class AppModel: ObservableObject {
                 guard !Task.isCancelled, lyricGeneration == token, snapshot?.key == key else { return }
                 record = result.record; lyricsResolution = result
                 if duration <= 0, let length = result.record?.duration { duration = length }
-                if result.record == nil { lyricsError = result.reasons.first ?? "Lirik belum ditemukan. Coba cari judul dan artisnya, atau impor file .lrc." }
+                if result.record == nil { lyricsError = result.reasons.first ?? "No lyrics found. Try searching by title and artist, or import an .lrc file." }
             } catch {
                 guard !Task.isCancelled, lyricGeneration == token else { return }
-                lyricsError = "Tidak dapat mengambil lirik. \(error.localizedDescription)"
+                lyricsError = "Couldn’t load the lyrics. \(error.localizedDescription)"
             }
         }
     }
@@ -297,7 +297,7 @@ final class AppModel: ObservableObject {
                 savedChoice: assessment.confidence != .incompatible)
             Task { await client.rememberChoice(result, for: signature) }
         }
-        if snapshot == nil { duration = result.duration; anchor(0, playing: false); status = "Lirik manual · mulai timer bersama musikmu" }
+        if snapshot == nil { duration = result.duration; anchor(0, playing: false); status = "Manual lyrics · start the timer with your music" }
     }
 
     func useAutomaticLyrics() {
@@ -313,16 +313,16 @@ final class AppModel: ObservableObject {
     func importLRC() {
         let panel = NSOpenPanel()
         panel.allowedContentTypes = [UTType(filenameExtension: "lrc") ?? .plainText, .plainText]
-        panel.allowsMultipleSelection = false; panel.message = "Pilih lirik bertimestamp (.lrc) untuk lagu yang sedang diputar."
+        panel.allowsMultipleSelection = false; panel.message = "Choose a timed lyrics file (.lrc) for the current track."
         guard panel.runModal() == .OK, let url = panel.url else { return }
         do {
             let data = try Data(contentsOf: url)
-            guard data.count <= 2_000_000 else { throw BridgeError(message: "File terlalu besar. Pilih file LRC di bawah 2 MB.") }
+            guard data.count <= 2_000_000 else { throw BridgeError(message: "This file is too large. Choose an LRC file under 2 MB.") }
             guard let text = String(data: data, encoding: .utf8), !LRCParser.parse(text).isEmpty else {
-                throw BridgeError(message: "File harus berupa LRC UTF-8 dengan timestamp, misalnya [00:12.50].")
+                throw BridgeError(message: "Choose a UTF-8 LRC file with timestamps such as [00:12.50].")
             }
             select(LyricsRecord(id: -2, trackName: snapshot?.title ?? url.deletingPathExtension().lastPathComponent,
-                                artistName: snapshot?.artist ?? "File lokal", duration: duration > 0 ? duration : (LRCParser.parse(text).last?.time ?? 0) + 10,
+                                artistName: snapshot?.artist ?? "Local file", duration: duration > 0 ? duration : (LRCParser.parse(text).last?.time ?? 0) + 10,
                                 syncedLyrics: text))
         } catch { lyricsError = error.localizedDescription }
     }
@@ -359,19 +359,19 @@ final class AppModel: ObservableObject {
     func startDemo() {
         disconnect(clear: true); demo = true
         let text = """
-        [00:00.00]Ada nada di antara kita
-        [00:05.00]Mengalir pelan menemani senja
-        [00:10.00]Biarkan dunia berputar sejenak
-        [00:15.00]Kita dengarkan cerita yang sama
-        [00:21.00]Setiap kata menemukan nadanya
-        [00:27.00]Di ruang kecil tempat kita pulang
-        [00:33.00]Tak perlu terburu mengejar waktu
-        [00:39.00]Lagu ini masih milik kita
+        [00:00.00]A note hangs in the air
+        [00:05.00]It drifts across the evening light
+        [00:10.00]Let the world turn for a moment
+        [00:15.00]We hear the same old story
+        [00:21.00]Every word finds its note
+        [00:27.00]In the room we call our own
+        [00:33.00]Let the hours wander on
+        [00:39.00]This song is ours to keep
         [00:45.00]
         """
-        record = LyricsRecord(id: -1, trackName: "Ruang Senja", artistName: "Liris Studio", albumName: "Sebuah demonstrasi", duration: 50, syncedLyrics: text)
+        record = LyricsRecord(id: -1, trackName: "Evening Room", artistName: "Liris Studio", albumName: "Studio Demo", duration: 50, syncedLyrics: text)
         duration = 50; anchor(16, playing: true)
-        status = "Demo visual · teks orisinal, tanpa audio"
+        status = "Visual demo · original lyrics, no audio"
         section = .listening
     }
 
@@ -390,7 +390,7 @@ final class AppModel: ObservableObject {
             let config: [String: Any] = ["name": "id.local.liris.bridge", "description": "Liris local playback bridge", "path": helper.path,
                 "type": "stdio", "allowed_origins": ["chrome-extension://lbogacejhoidbiplndajhinepmobfphh/"]]
             try JSONSerialization.data(withJSONObject: config, options: [.prettyPrinted]).write(to: folder.appendingPathComponent("id.local.liris.bridge.json"), options: .atomic)
-        } catch { connectionError = "Setup Brave gagal: " + error.localizedDescription; return }
+        } catch { connectionError = "Brave setup failed: " + error.localizedDescription; return }
         if let folder = Bundle.main.resourceURL?.appendingPathComponent("AutoExtension") { NSWorkspace.shared.open(folder) }
         let url = URL(string: "brave://extensions")!
         if let brave = NSWorkspace.shared.urlForApplication(withBundleIdentifier: "com.brave.Browser") {
@@ -418,7 +418,7 @@ final class AppModel: ObservableObject {
                 try await audio.start()
                 guard audioRequest == request, generation == token, !Task.isCancelled else { return }
                 refreshAudioActivity()
-                if audioActivity.phase == .active { status = "Mendengarkan audio sistem lewat ShazamIO…" }
+                if audioActivity.phase == .active { status = "Listening to system audio with ShazamIO…" }
             } catch {
                 guard audioRequest == request, generation == token, !Task.isCancelled else { return }
                 audio.reportStartFailure(error); connectionError = error.localizedDescription
@@ -429,7 +429,7 @@ final class AppModel: ObservableObject {
         audioRequest = UUID(); audioStartTask?.cancel(); audioStartTask = nil
         audio.stop(); refreshAudioActivity()
         if snapshot?.positionSource == "recognition" { clearTrack() }
-        status = "Pengenalan audio dimatikan"
+        status = "Audio recognition turned off"
     }
 
     // Rendering previews never start capture or a worker.

@@ -70,7 +70,7 @@ final class OverlayController: NSObject, NSWindowDelegate {
     private func makeUnlockPanel() -> NSPanel {
         let control = NSPanel(contentRect: NSRect(origin: .zero, size: OverlayLayout.lockSize),
                               styleMask: [.borderless, .nonactivatingPanel], backing: .buffered, defer: false)
-        control.title = "Buka kunci overlay"
+        control.title = "Unlock Overlay"
         control.level = .floating
         control.collectionBehavior = [.canJoinAllSpaces, .fullScreenAuxiliary]
         control.isOpaque = false
@@ -81,12 +81,12 @@ final class OverlayController: NSObject, NSWindowDelegate {
         control.isExcludedFromWindowsMenu = true
 
         let button = OverlayUnlockButton(frame: NSRect(origin: .zero, size: OverlayLayout.lockSize))
-        button.image = NSImage(systemSymbolName: "lock.fill", accessibilityDescription: "Buka kunci overlay")
+        button.image = NSImage(systemSymbolName: "lock.fill", accessibilityDescription: "Unlock Overlay")
         button.imagePosition = .imageOnly
         button.isBordered = false
         button.contentTintColor = .white
-        button.toolTip = "Buka kunci overlay"
-        button.setAccessibilityLabel("Buka kunci overlay")
+        button.toolTip = "Unlock Overlay"
+        button.setAccessibilityLabel("Unlock Overlay")
         button.target = self
         button.action = #selector(unlockOverlay)
         button.wantsLayer = true
@@ -128,7 +128,7 @@ struct OverlayView: View {
     var interactive = false
 
     private var trackLabel: String {
-        guard model.hasTrack else { return "Menunggu musikmu" }
+        guard model.hasTrack else { return "Waiting for music" }
         let artist = [model.snapshot?.artist, model.record?.artistName]
             .compactMap { $0?.trimmingCharacters(in: .whitespacesAndNewlines) }
             .first { !$0.isEmpty }
@@ -138,7 +138,7 @@ struct OverlayView: View {
 
     private var activeLyric: String {
         guard model.record?.hasSync == false else { return model.currentText }
-        return model.record?.instrumental == true ? "♪ Instrumental" : "Lirik ini belum memiliki timestamp"
+        return model.record?.instrumental == true ? "♪ Instrumental" : "These lyrics have no timestamps"
     }
 
     private func lyricRows(fontSize: CGFloat, activeLineLimit: Int) -> some View {
@@ -176,33 +176,33 @@ struct OverlayView: View {
                         .foregroundStyle(model.syncNeedsAttention ? Color.orange : model.accent)
                         .help(model.syncHeadline + ". " + model.syncExplanation)
                 }
-                if model.demo { Text("· DEMO TANPA AUDIO").foregroundStyle(model.accent) }
+                if model.demo { Text("· DEMO WITHOUT AUDIO").foregroundStyle(model.accent) }
                 Spacer(minLength: 5)
                 if model.audioActivity.isEngaged {
                     HStack(spacing: 4) {
                         Image(systemName: "record.circle.fill")
-                        Text(model.audioActivity.phase == .stopping ? "MENGHENTIKAN" : "AUDIO AKTIF")
+                        Text(model.audioActivity.phase == .stopping ? "STOPPING" : "AUDIO ON")
                     }.foregroundStyle(.orange).help(model.audioActivity.headline + ". " + model.audioActivity.detail)
                     if !model.overlayLocked {
-                        Button("Matikan") { model.stopAudioRecognition() }
+                        Button("Stop") { model.stopAudioRecognition() }
                             .buttonStyle(.plain).foregroundStyle(.orange)
                             .disabled(model.audioActivity.phase == .stopping)
-                            .accessibilityLabel("Matikan pengenalan audio sistem")
+                            .accessibilityLabel("Stop system audio recognition")
                     }
                 }
                 if interactive && !model.overlayLocked {
                     OverlayHandle(mode: .move)
                         .frame(width: 32, height: 20)
                         .overlay { Image(systemName: "line.3.horizontal").allowsHitTesting(false) }
-                        .accessibilityLabel("Geser overlay")
+                        .accessibilityLabel("Move overlay")
                 }
                 if (interactive || hovered) && !model.overlayLocked {
-                    Button { model.toggleOverlay() } label: { Image(systemName: "xmark") }.buttonStyle(.plain).padding(.leading, 9).help("Tutup overlay")
+                    Button { model.toggleOverlay() } label: { Image(systemName: "xmark") }.buttonStyle(.plain).padding(.leading, 9).help("Close Overlay")
                     Button { model.overlayLocked = true; model.overlayController.updateLock() } label: {
                         Image(systemName: "lock.open")
                             .frame(width: OverlayLayout.lockSize.width, height: OverlayLayout.lockSize.height)
                             .contentShape(Rectangle())
-                    }.buttonStyle(.plain).help("Kunci overlay")
+                    }.buttonStyle(.plain).help("Lock Overlay")
                 } else if interactive && model.overlayLocked {
                     Color.clear.frame(width: OverlayLayout.lockSize.width, height: OverlayLayout.lockSize.height)
                         .accessibilityHidden(true)
@@ -235,7 +235,7 @@ struct OverlayView: View {
                                 .allowsHitTesting(false)
                         }
                         .padding(4)
-                        .accessibilityLabel("Ubah ukuran overlay")
+                        .accessibilityLabel("Resize overlay")
                 }
             }
             .padding(OverlayLayout.outerPadding).onHover { hovered = $0 }
@@ -256,7 +256,7 @@ private struct OverlayHandle: NSViewRepresentable {
         init(mode: Mode) {
             self.mode = mode
             super.init(frame: .zero)
-            toolTip = mode == .move ? "Tarik untuk memindahkan overlay" : "Tarik untuk mengubah ukuran overlay"
+            toolTip = mode == .move ? "Drag to move the overlay" : "Drag to resize the overlay"
         }
 
         required init?(coder: NSCoder) { nil }
