@@ -8,8 +8,8 @@
     <key>CFBundleExecutable</key><string>Liris</string>
     <key>CFBundleIdentifier</key><string>id.local.liris</string>
     <key>CFBundlePackageType</key><string>APPL</string>
-    <key>CFBundleShortVersionString</key><string>0.4.7</string>
-    <key>CFBundleVersion</key><string>13</string>
+    <key>CFBundleShortVersionString</key><string>0.4.8</string>
+    <key>CFBundleVersion</key><string>14</string>
     <key>CFBundleIconFile</key><string>LirisDock.icns</string>
     <key>LSUIElement</key><true/>
     <key>LSMinimumSystemVersion</key><string>14.0</string>

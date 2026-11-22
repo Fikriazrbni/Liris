@@ -2,7 +2,7 @@ param(
     [string]$Bundle = (Join-Path $PSScriptRoot 'dist\Liris-Windows'),
     [string]$Compiler = $env:ISCC_PATH,
     [ValidatePattern('^\d+(\.\d+){1,3}$')]
-    [string]$Version = '0.1.0'
+    [string]$Version = '0.1.1'
 )
 
 $ErrorActionPreference = 'Stop'

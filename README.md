@@ -22,10 +22,10 @@
 
 | Platform | Download | Release notes |
 | --- | --- | --- |
-| macOS 14+ · Apple Silicon | [Mac ZIP](https://github.com/Fikriazrbni/Liris/releases/download/v0.4.7/Liris-v0.4.7-macos-arm64.zip) | [v0.4.7](https://github.com/Fikriazrbni/Liris/releases/tag/v0.4.7) |
-| Windows 11 · x64 | [Windows installer](https://github.com/Fikriazrbni/Liris/releases/download/windows-v0.1.0/Liris-Setup-Windows-x64.exe) | [Preview v0.1.0](https://github.com/Fikriazrbni/Liris/releases/tag/windows-v0.1.0) |
+| macOS 14+ · Apple Silicon | [Mac ZIP](https://github.com/Fikriazrbni/Liris/releases/download/v0.4.8/Liris-v0.4.8-macos-arm64.zip) | [v0.4.8](https://github.com/Fikriazrbni/Liris/releases/tag/v0.4.8) |
+| Windows 11 · x64 | [Windows installer](https://github.com/Fikriazrbni/Liris/releases/download/windows-v0.1.1/Liris-Setup-Windows-x64.exe) | [Preview v0.1.1](https://github.com/Fikriazrbni/Liris/releases/tag/windows-v0.1.1) |
 
-Both packages include Python and ShazamIO. The Mac build is ad hoc signed and has not been notarized by Apple. The Windows installer is unsigned. The downloads above predate the English interface shown here.
+Both packages include Python and ShazamIO. The Mac build is ad hoc signed and has not been notarized by Apple. The Windows installer is unsigned.
 
 ### Homebrew on Mac
 

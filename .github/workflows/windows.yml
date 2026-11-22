@@ -37,3 +37,23 @@ jobs:
         with:
           name: Liris-Windows-x64-preview
           path: windows/dist/Liris-Windows-x64-preview.zip
+      - name: Build and verify Windows installer
+        working-directory: windows
+        shell: pwsh
+        run: |
+          ./build-installer.ps1
+          $dest = Join-Path $env:RUNNER_TEMP 'Liris installed'
+          $setup = Start-Process ./dist/Liris-Setup-Windows-x64.exe -ArgumentList '/VERYSILENT', '/SUPPRESSMSGBOXES', '/NORESTART', "/DIR=`"$dest`"" -Wait -PassThru
+          if ($setup.ExitCode -ne 0) { throw "Installer exited with code $($setup.ExitCode)" }
+          .venv/Scripts/python.exe verify_package.py --bundle "$dest"
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          $hash = (Get-FileHash ./dist/Liris-Setup-Windows-x64.exe -Algorithm SHA256).Hash.ToLowerInvariant()
+          "$hash  Liris-Setup-Windows-x64.exe" | Set-Content ./dist/SHA256SUMS-Windows.txt -Encoding ascii
+      - uses: actions/upload-artifact@v4
+        with:
+          name: Liris-Windows-installer
+          if-no-files-found: error
+          compression-level: 0
+          path: |
+            windows/dist/Liris-Setup-Windows-x64.exe
+            windows/dist/SHA256SUMS-Windows.txt
